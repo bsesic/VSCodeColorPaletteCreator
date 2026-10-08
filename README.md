@@ -1,101 +1,175 @@
-# VSCode Color Palette Creator
+<p align="center">
+  <img src="images/icon.png" alt="Color Palette Creator" width="128" height="128">
+</p>
 
-Pick, extract and generate color palettes inside Visual Studio Code and use them directly in your code.
+<h1 align="center">Color Palette Creator</h1>
 
-## Features
+<p align="center">
+  <strong>Pick, generate, extract and check colors without leaving VS Code, and edit the colors of your code live.</strong>
+</p>
 
-- **Palette editor**: starts with 5 swatches; add or delete colors (2 to 12), change them, copy the color code,
-  reorder with drag and drop, lock swatches, edit tints/shades and choose the base color.
-- **Color picker**: saturation/brightness area, hue slider, RGB/HSL/HSV sliders (including lightness and
-  brightness), HEX/RGB/HSL input fields, preset swatches and an eyedropper that picks colors from the screen.
-- **Color wheel and harmonies**: generate palettes with Custom, Analogous, Complementary, Split Complementary,
-  Triad, Square, Compound, Shades, Monochromatic or Random harmonies. Drag the markers on the wheel to rotate the
-  harmony or move individual colors.
-- **Image extraction**: upload an image (file dialog, drag and drop or paste). The dominant colors are picked
-  automatically (k-means); move the markers or click to add your own. Extract gradients along a line.
-- **Gradient generator**: linear, radial and conic gradients, editable stops, angle, interpolation in OKLab,
-  RGB or HSL, CSS output and gradient steps as a palette.
-- **Contrast checker**: WCAG 2.x ratio with AA/AAA ratings for text and UI components, a live preview,
-  suggestions for passing colors and a contrast matrix of the palette.
-- **Color blindness simulator**: protanopia, deuteranopia, tritanopia, their anomalous variants and
-  achromatopsia for the palette (with warnings for colors that become hard to distinguish) and for images.
-- **Palette management**: save, rename, duplicate, edit, delete and search palettes; export as CSS, SCSS, LESS,
-  JSON, Tailwind config, JS/TS, GIMP palette or plain text; save as PNG image; import palette files; insert
-  palettes into the active editor.
-- **Document colors**: the *Document* tab shows the colors of the open file as swatches, grouped by value with
-  variable names (e.g. `--bs-primary`) and occurrence count. Clicking a swatch jumps to the color in the editor;
-  clicking it again moves to the next occurrence and wraps around to the first one after the last. The
-  previous/next buttons and the occurrence dropdown navigate as well. Changing a swatch rewrites all its
-  occurrences in the file at once (HEX, functions and Bootstrap `-rgb` triplets keep their notation). Enable
-  *Auto-save* to see the result immediately with live reload servers.
-- **Inline color boxes**: a small color box with VS Code's color picker in front of HEX, RGB(A), HSL(A) and
-  HSV(A) codes in every language, plus Bootstrap style RGB triplets (`--bs-primary-rgb: 13, 110, 253`). Editing
-  keeps the original notation. In CSS, SCSS and LESS only the formats missing in VS Code's built-in picker are
-  added, so no duplicate boxes appear.
-- **History** of recently used colors, undo/redo and automatic persistence of the working palette.
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator"><img src="https://img.shields.io/visual-studio-marketplace/v/bsesic.vscode-color-palette-creator?label=Marketplace&color=2A9D8F" alt="Marketplace version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator"><img src="https://img.shields.io/visual-studio-marketplace/i/bsesic.vscode-color-palette-creator?color=E9C46A" alt="Installs"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator&ssr=false#review-details"><img src="https://img.shields.io/visual-studio-marketplace/r/bsesic.vscode-color-palette-creator?color=F4A261" alt="Rating"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/bsesic/VSCodeColorPaletteCreator?color=E76F51" alt="License"></a>
+</p>
 
-## Usage
+<p align="center">
+  <a href="https://www.buymeacoffee.com/bsesic"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
+</p>
 
-Run **Color Palette: Open Color Palette Creator** from the command palette or click the **Palette** button in the
-status bar.
+![Color Palette Creator: palette editor with color wheel and color picker](images/screenshots/editor.png)
 
-| Shortcut (in the panel) | Action |
+## ✨ Why Color Palette Creator?
+
+- 🎨 **Everything in one place:** color picker, palette generator, image extraction, gradients, contrast and
+  accessibility checks in a single panel next to your code.
+- ⚡ **Live in your code:** change a color once and every occurrence in the file is updated instantly, in its
+  original notation. Perfect for Bootstrap, Tailwind or any CSS theme.
+- 🖌️ **Color boxes everywhere:** a color picker in front of every HEX, RGB, HSL and HSV code in **any**
+  language, not just CSS.
+- ♿ **Accessible by design:** WCAG contrast ratings and a color blindness simulator help you build palettes
+  everybody can see.
+- 📦 **Ready for your stack:** export to CSS, SCSS, LESS, JSON, Tailwind, JS/TS, GIMP palettes, plain text or PNG.
+
+## 🚀 Quick start
+
+1. Install **Color Palette Creator** from the Visual Studio Marketplace.
+2. Press `Ctrl+Alt+P` (`Cmd+Alt+P` on macOS) or click **Palette** in the status bar.
+3. Press `Space` to generate a palette, or open a CSS file and switch to the **Document** tab to edit its colors
+   live.
+
+## 🎯 Features
+
+### 🎨 Palette editor and color picker
+
+Build palettes from 2 to 12 swatches and fine-tune every color.
+
+- Add, delete, reorder (drag and drop), lock and copy swatches
+- Choose a **base color** and edit **tints and shades** with one click
+- Picker with saturation/brightness area, hue slider and **RGB, HSL and HSV sliders**
+- HEX, RGB and HSL input fields, preset swatches and an **eyedropper** that picks colors anywhere on the screen
+- Undo/redo and automatic saving of your working palette
+
+### 🌈 Color wheel and harmonies
+
+Drag the markers on the interactive color wheel and let harmonies do the work:
+**Analogous, Complementary, Split Complementary, Triad, Square, Compound, Shades, Monochromatic, Random**
+or fully **Custom**. Locked swatches are kept when generating.
+
+### ⚡ Live document colors
+
+The **Document** tab turns the colors of the open file into swatches, grouped by value, with variable names
+such as `--bs-primary` and the number of occurrences.
+
+- Change a swatch and **all occurrences are rewritten instantly**, keeping each notation (HEX case, short HEX,
+  `rgb()`, `hsl()`, alpha, and Bootstrap `--*-rgb` triplets)
+- Click a swatch to **jump to the code**, click again for the next occurrence
+- Optional **auto-save** so live reload servers show the result immediately
+- Use the document colors as a palette with one click
+
+### 🖌️ Inline color pickers
+
+A small color box with VS Code's color picker appears in front of color codes in every language:
+`#rgb`, `#rrggbbaa`, `rgb()`, `rgba()`, `hsl()`, `hsla()`, `hsv()`, `hsva()` and Bootstrap RGB triplets.
+Edits keep the original notation. In CSS, SCSS and LESS only the formats missing in VS Code's built-in picker are
+added, so you never get duplicate boxes.
+
+### 🖼️ Extract colors from images
+
+Drop, paste or upload an image and get its dominant colors automatically. Drag the markers to fine-tune, click to
+add new ones, or **extract a gradient** along a line.
+
+![Extract a palette from an image](images/screenshots/image-extraction.png)
+
+### 🌅 Gradient generator
+
+Create linear, radial and conic gradients with any number of stops, choose the angle and interpolate in
+**OKLab**, RGB or HSL. Copy the CSS, insert it into your code or turn the gradient steps into a palette.
+
+![Gradient generator](images/screenshots/gradient.png)
+
+### ♿ Contrast checker
+
+Check text and UI colors against **WCAG 2.x** (AA and AAA, normal and large text, UI components), preview the
+result, get suggestions for passing colors and see the contrast of every color pair in your palette.
+
+![WCAG contrast checker with palette matrix](images/screenshots/contrast.png)
+
+### 👓 Color blindness simulator
+
+See your palette with protanopia, deuteranopia, tritanopia, their anomalous variants and achromatopsia. Colors
+that become hard to tell apart are flagged, and uploaded images can be simulated too.
+
+![Color blindness simulator](images/screenshots/color-blindness.png)
+
+### 📚 Saved palettes and export
+
+Save, rename, duplicate, search, edit and delete palettes. Export them, save them as PNG images, import palette
+files or insert them straight into your code.
+
+![Saved palettes](images/screenshots/palettes.png)
+
+| Format | Example |
 | --- | --- |
-| `Space` | Generate a new palette with the current harmony |
-| `Ctrl+Z` / `Ctrl+Y` | Undo / redo |
+| CSS variables | `--ocean-1: #003049;` |
+| SCSS / LESS variables | `$ocean-1: #003049;` / `@ocean-1: #003049;` |
+| JSON | `{ "name": "Ocean", "colors": ["#003049"] }` |
+| Tailwind config | `colors: { ocean: { 100: '#003049' } }` |
+| JavaScript / TypeScript | `export const ocean = { color1: '#003049' } as const;` |
+| GIMP palette, plain text, PNG image | for design tools and documentation |
 
-Other commands:
+### 🕘 Color history
 
-- **Color Palette: Insert Saved Palette...**: insert a saved palette in any export format at the cursor.
-- **Color Palette: Clear Color History**
+Every color you copy, pick or edit is remembered. Re-apply it to a swatch, copy it again or turn your recent
+colors into a palette.
 
-### Settings
+![Color history](images/screenshots/history.png)
+
+## ⌨️ Commands and shortcuts
+
+All commands are available in the command palette under **Color Palette**.
+
+| Command | Shortcut |
+| --- | --- |
+| Open Color Palette Creator | `Ctrl+Alt+P` / `Cmd+Alt+P` |
+| Edit Colors of Current File (also in the editor context menu) | `Ctrl+Alt+Shift+P` / `Cmd+Alt+Shift+P` |
+| Extract Colors from Image (also in the explorer context menu of images) | |
+| Open Gradient Generator, Contrast Checker, Color Blindness Simulator | |
+| Manage Saved Palettes, Show Color History | |
+| Insert Saved Palette..., Export Saved Palette..., Import Palette from File... | |
+| Toggle Inline Color Boxes, Clear Color History | |
+
+Inside the panel: `Space` generates a new palette, `Ctrl+Z` / `Ctrl+Y` undo and redo.
+
+## ⚙️ Settings
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `colorPaletteCreator.historySize` | `60` | Number of colors kept in the history |
-| `colorPaletteCreator.defaultExportFormat` | `css` | Format used for inserting palettes |
-| `colorPaletteCreator.showStatusBarItem` | `true` | Show the status bar button |
-| `colorPaletteCreator.documentColors.autoSave` | `false` | Save the file after color changes in the Document tab |
 | `colorPaletteCreator.inlineColors.enabled` | `true` | Show inline color boxes in the editor |
 | `colorPaletteCreator.inlineColors.excludedLanguages` | `[]` | Languages without inline color boxes |
 | `colorPaletteCreator.inlineColors.builtInLanguages` | `["css", "scss", "less"]` | Languages with a built-in color provider (only missing formats are added) |
+| `colorPaletteCreator.documentColors.autoSave` | `false` | Save the file after color changes in the Document tab |
+| `colorPaletteCreator.defaultExportFormat` | `css` | Format used when inserting or exporting palettes |
+| `colorPaletteCreator.historySize` | `60` | Number of colors kept in the history |
+| `colorPaletteCreator.showStatusBarItem` | `true` | Show the **Palette** button in the status bar |
 
-## Development
+## ☕ Support
 
-```bash
-nvm use          # Node.js 22 from .nvmrc
-npm install
-npm run compile   # build extension host and webview
-npm run lint      # ESLint
-npm test          # unit tests (mocha)
-```
+Color Palette Creator is free and open source. If it saves you time, you can support its development:
 
-Press `F5` in VS Code to start an Extension Development Host.
+<a href="https://www.buymeacoffee.com/bsesic"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
 
-### Packaging and publishing
+A ⭐ on [GitHub](https://github.com/bsesic/VSCodeColorPaletteCreator) or a review on the
+[Marketplace](https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator&ssr=false#review-details)
+helps too!
 
-The tooling (mocha, `vsce`) requires Node.js 22 (see `.nvmrc`). With nvm, run `nvm use` in the project folder;
-the pre-commit hook switches to this version automatically.
+## 🤝 Contributing
 
-```bash
-npm run package                 # creates vscode-color-palette-creator-<version>.vsix
-npx vsce login bsesic           # once, with an Azure DevOps personal access token
-npx vsce publish                # publish to the Visual Studio Marketplace
-```
+Found a bug or have an idea? Open an [issue](https://github.com/bsesic/VSCodeColorPaletteCreator/issues).
+Want to contribute code? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-The git pre-commit hook in `.githooks/` runs the linters and the tests. Enable it once with
-`git config core.hooksPath .githooks`.
+## 📄 License
 
-### Project structure
-
-- `src/core/`: side-effect free color logic shared by the extension host and the webview (conversions,
-  harmonies, contrast, color vision simulation, extraction, gradients, exporters). Covered by unit tests in `test/`.
-- `src/extension/`: extension host (commands, webview panel, persistence).
-- `src/webview/`: webview UI, compiled as ES modules to `media/out/`.
-
-### Branching
-
-- `main`: releases and deployment
-- `development`: ongoing development
-- `feature/*`, `bugfix/*`: feature and bugfix branches, merged into `development` via pull requests
+[MIT](LICENSE) © Benjamin Schnabel
