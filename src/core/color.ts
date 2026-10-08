@@ -262,8 +262,8 @@ export function readableTextColor(background: string): string {
 }
 
 const NAMED_HUES: Array<[number, string]> = [
-  [15, 'Red'], [45, 'Orange'], [70, 'Yellow'], [150, 'Green'], [190, 'Cyan'],
-  [260, 'Blue'], [290, 'Violet'], [335, 'Magenta'], [360, 'Red']
+  [15, 'Red'], [40, 'Orange'], [70, 'Yellow'], [165, 'Green'], [195, 'Cyan'],
+  [255, 'Blue'], [290, 'Violet'], [335, 'Magenta'], [360, 'Red']
 ];
 
 /** Rough human readable name, e.g. "Dark Blue" or "Light Gray". Useful for variable names. */

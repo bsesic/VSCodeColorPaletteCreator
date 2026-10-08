@@ -81,5 +81,6 @@ describe('color helpers', () => {
     assert.strictEqual(describeColor('#0000FF'), 'Blue');
     assert.strictEqual(describeColor('#003300'), 'Dark Green');
     assert.strictEqual(describeColor('#CCCCCC'), 'Light Gray');
+    assert.strictEqual(describeColor('#00AA55'), 'Green');
   });
 });
