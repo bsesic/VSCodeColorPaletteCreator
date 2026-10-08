@@ -52,7 +52,7 @@ Other commands:
 ```bash
 npm install
 npm run compile   # build extension host and webview
-npm run lint      # ESLint + flake8
+npm run lint      # ESLint
 npm test          # unit tests (mocha)
 ```
 
