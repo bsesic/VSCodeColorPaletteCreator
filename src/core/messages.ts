@@ -37,13 +37,11 @@ export type WebviewMessage =
   | { type: 'palette:delete'; id: string }
   | { type: 'palette:export'; palette: { name: string; colors: string[] }; format: ExportFormat }
   | { type: 'palette:saveImage'; name: string; dataUrl: string }
-  | { type: 'palette:import' }
-  | { type: 'image:open' };
+  | { type: 'palette:import' };
 
 export type HostMessage =
   | { type: 'init'; working?: WorkingState; history: string[]; palettes: Palette[]; settings: Settings }
   | { type: 'history'; history: string[] }
   | { type: 'palettes'; palettes: Palette[] }
   | { type: 'paletteSaved'; palette: Palette }
-  | { type: 'paletteImported'; palette: Palette }
-  | { type: 'image'; name: string; dataUrl: string };
+  | { type: 'paletteImported'; palette: Palette };

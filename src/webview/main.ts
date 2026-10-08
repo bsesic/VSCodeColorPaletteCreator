@@ -9,11 +9,12 @@ import { ICONS, append, h, iconButton, select } from './dom.js';
 import { store } from './store.js';
 import { createEditorView } from './views/editor.js';
 import { createHistoryView } from './views/history.js';
+import { createImageView } from './views/image.js';
 import { createSwatchStrip } from './views/swatches.js';
 import { View } from './views/view.js';
 import { toast } from './toast.js';
 
-const views: View[] = [createEditorView(), createHistoryView()];
+const views: View[] = [createEditorView(), createImageView(), createHistoryView()];
 
 function createHeader(): HTMLElement {
   const nameInput = h('input', { class: 'palette-name', type: 'text', 'aria-label': 'Palette name', spellcheck: 'false' });

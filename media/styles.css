@@ -299,3 +299,72 @@ input[type="range"]::-webkit-slider-thumb {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ---------- Image extraction ---------- */
+.image-view.dragover { outline: 2px dashed var(--accent); outline-offset: -6px; }
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 16px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  text-align: center;
+}
+.drop-icon svg { width: 40px; height: 40px; }
+.image-stage {
+  position: relative;
+  max-width: 100%;
+  width: fit-content;
+  margin: 0 auto;
+  cursor: copy;
+  touch-action: none;
+  user-select: none;
+}
+.image-canvas { display: block; max-width: 100%; max-height: 520px; border-radius: var(--radius); }
+.marker-layer, .line-layer, .dot-layer { position: absolute; inset: 0; width: 100%; height: 100%; }
+.line-layer { pointer-events: none; }
+.line-layer line { stroke: #fff; stroke-width: 2; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 1px #000); }
+.marker-layer { pointer-events: none; }
+.pick-marker {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+}
+.pick-marker.active { cursor: grabbing; transform: scale(1.35); z-index: 2; }
+.line-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+.gradient-bar { height: 34px; border-radius: var(--radius); margin: 10px 0; border: 1px solid var(--border); }
+.extract-results { margin-top: 10px; }
+.result-swatches { display: flex; border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; border: 1px solid var(--border); }
+.result-swatch {
+  flex: 1;
+  height: 52px;
+  border: none;
+  border-radius: 0;
+  justify-content: center;
+  font-family: var(--vscode-editor-font-family);
+  font-size: 0.85em;
+  padding: 0 2px;
+}
