@@ -68,7 +68,8 @@
     }
   },
   "scripts": {
-    "compile": "tsc -p tsconfig.json && tsc -p tsconfig.webview.json",
+    "clean": "node -e \"const fs=require('fs');fs.rmSync('out',{recursive:true,force:true});fs.rmSync('media/out',{recursive:true,force:true})\"",
+    "compile": "npm run clean && tsc -p tsconfig.json && tsc -p tsconfig.webview.json",
     "watch": "tsc -p tsconfig.json -w",
     "lint": "eslint src test --ext ts && flake8 .",
     "test": "npm run compile && mocha",
