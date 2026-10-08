@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { HostMessage, WebviewMessage } from '../core/messages';
-import { ExportFormat } from '../core/palette';
+import { EXPORT_FORMATS, ExportFormat, exportPalette, parsePaletteFile, slugify } from '../core/palette';
 import { PaletteStore } from './store';
 
 /**
@@ -86,6 +86,33 @@ export class PalettePanel {
           await this.store.clearHistory();
           this.post({ type: 'history', history: [] });
           break;
+        case 'palette:save': {
+          const palette = await this.store.savePalette(msg.palette);
+          this.post({ type: 'paletteSaved', palette });
+          break;
+        }
+        case 'palette:rename':
+          await this.renamePalette(msg.id);
+          break;
+        case 'palette:duplicate': {
+          const source = this.store.getPalette(msg.id);
+          if (source) {
+            await this.store.savePalette({ name: `${source.name} copy`, colors: source.colors });
+          }
+          break;
+        }
+        case 'palette:delete':
+          await this.deletePalette(msg.id);
+          break;
+        case 'palette:export':
+          await this.exportPalette(msg.palette, msg.format);
+          break;
+        case 'palette:saveImage':
+          await this.saveImage(msg.name, msg.dataUrl);
+          break;
+        case 'palette:import':
+          await this.importPalette();
+          break;
         default:
           break;
       }
@@ -102,6 +129,92 @@ export class PalettePanel {
     } else {
       vscode.window.showInformationMessage(message);
     }
+  }
+
+  private async renamePalette(id: string): Promise<void> {
+    const palette = this.store.getPalette(id);
+    if (!palette) {
+      return;
+    }
+    const name = await vscode.window.showInputBox({
+      title: 'Rename palette',
+      value: palette.name,
+      validateInput: (value) => (value.trim() ? undefined : 'The name must not be empty.')
+    });
+    if (name) {
+      await this.store.renamePalette(id, name.trim());
+      this.post({ type: 'paletteRenamed', id, name: name.trim() });
+    }
+  }
+
+  private async deletePalette(id: string): Promise<void> {
+    const palette = this.store.getPalette(id);
+    if (!palette) {
+      return;
+    }
+    const answer = await vscode.window.showWarningMessage(
+      `Delete the palette "${palette.name}"?`, { modal: true, detail: 'This cannot be undone.' }, 'Delete');
+    if (answer === 'Delete') {
+      await this.store.deletePalette(id);
+    }
+  }
+
+  private defaultUri(fileName: string): vscode.Uri | undefined {
+    const folder = vscode.workspace.workspaceFolders?.[0]?.uri;
+    return folder ? vscode.Uri.joinPath(folder, fileName) : undefined;
+  }
+
+  private async exportPalette(palette: { name: string; colors: string[] }, format: ExportFormat): Promise<void> {
+    const info = EXPORT_FORMATS.find((f) => f.id === format) ?? EXPORT_FORMATS[0];
+    const uri = await vscode.window.showSaveDialog({
+      title: `Export palette as ${info.label}`,
+      defaultUri: this.defaultUri(`${slugify(palette.name)}.${info.extension}`),
+      filters: { [info.label]: [info.extension] }
+    });
+    if (!uri) {
+      return;
+    }
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(exportPalette(palette, format), 'utf8'));
+    const open = await vscode.window.showInformationMessage(`Palette exported to ${uri.fsPath}`, 'Open');
+    if (open) {
+      await vscode.window.showTextDocument(uri);
+    }
+  }
+
+  private async saveImage(name: string, dataUrl: string): Promise<void> {
+    const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl);
+    if (!match) {
+      throw new Error('Invalid image data.');
+    }
+    const uri = await vscode.window.showSaveDialog({
+      title: 'Save palette as image',
+      defaultUri: this.defaultUri(`${slugify(name)}.png`),
+      filters: { 'PNG image': ['png'] }
+    });
+    if (uri) {
+      await vscode.workspace.fs.writeFile(uri, Buffer.from(match[1], 'base64'));
+      vscode.window.showInformationMessage(`Palette image saved to ${uri.fsPath}`);
+    }
+  }
+
+  private async importPalette(): Promise<void> {
+    const [uri] = await vscode.window.showOpenDialog({
+      title: 'Import palette',
+      canSelectMany: false,
+      filters: { 'Palette files': ['json', 'css', 'scss', 'less', 'txt', 'gpl', 'js', 'ts'], 'All files': ['*'] }
+    }) ?? [];
+    if (!uri) {
+      return;
+    }
+    const text = Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8');
+    const fileName = uri.path.split('/').pop()?.replace(/\.[^.]+$/, '') ?? 'Imported palette';
+    const parsed = parsePaletteFile(text, fileName);
+    if (!parsed) {
+      vscode.window.showWarningMessage('No colors were found in the selected file.');
+      return;
+    }
+    const palette = await this.store.savePalette({ name: parsed.name, colors: parsed.colors.slice(0, 12) });
+    this.post({ type: 'paletteImported', palette });
   }
 
   /** Inserts text at the cursor(s) of the last active text editor. */

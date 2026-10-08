@@ -3,7 +3,7 @@
  */
 import { ColorFormat } from '../core/color.js';
 import { WorkingState } from '../core/messages.js';
-import { exportPalette } from '../core/palette.js';
+import { EXPORT_FORMATS, ExportFormat, exportPalette } from '../core/palette.js';
 import { getViewState, onHostMessage, post } from './api.js';
 import { ICONS, append, h, iconButton, select } from './dom.js';
 import { store } from './store.js';
@@ -12,13 +12,15 @@ import { createHistoryView } from './views/history.js';
 import { createContrastView } from './views/contrast.js';
 import { createGradientView } from './views/gradient.js';
 import { createImageView } from './views/image.js';
+import { createLibraryView, saveImage } from './views/library.js';
 import { createVisionView } from './views/vision.js';
 import { createSwatchStrip } from './views/swatches.js';
 import { View } from './views/view.js';
 import { toast } from './toast.js';
 
 const views: View[] = [
-  createEditorView(), createImageView(), createGradientView(), createContrastView(), createVisionView(), createHistoryView()
+  createEditorView(), createImageView(), createGradientView(), createContrastView(), createVisionView(), createLibraryView(),
+  createHistoryView()
 ];
 
 function createHeader(): HTMLElement {
@@ -35,9 +37,32 @@ function createHeader(): HTMLElement {
   });
   const copyAll = iconButton(ICONS.copy, 'Copy all colors', () => store.copyText(store.colors.join(', '), 'all colors'));
 
+  const save = h('button', { type: 'button', class: 'primary', title: 'Save palette', html: `${ICONS.save} Save` });
+  save.addEventListener('click', () => post({
+    type: 'palette:save', palette: { id: store.state.paletteId, name: store.state.name, colors: store.colors }
+  }));
+  const saveAsNew = h('button', { type: 'button', title: 'Save as a new palette' }, 'Save as new');
+  saveAsNew.addEventListener('click', () => post({ type: 'palette:save', palette: { name: store.state.name, colors: store.colors } }));
+  const newPalette = h('button', { type: 'button', title: 'Start a new palette' }, 'New');
+  newPalette.addEventListener('click', () => {
+    store.loadColors(store.colors, 'Untitled palette', undefined);
+    store.generate();
+  });
+  const exportSelect = select<ExportFormat | ''>(
+    [{ id: '', label: 'Export…' }, ...EXPORT_FORMATS, { id: 'png' as ExportFormat, label: 'PNG image' }],
+    '', (value) => {
+      exportSelect.value = '';
+      if ((value as string) === 'png') {
+        saveImage(store.state.name, store.colors);
+      } else if (value) {
+        post({ type: 'palette:export', palette: { name: store.state.name, colors: store.colors }, format: value });
+      }
+    }, 'Export the current palette');
+
   const header = h('header', { class: 'app-header' },
     nameInput,
-    h('div', { class: 'header-actions', id: 'header-actions' }, undo, redo, formatSelect, copyAll, insert));
+    h('div', { class: 'header-actions', id: 'header-actions' },
+      undo, redo, formatSelect, copyAll, insert, exportSelect, newPalette, saveAsNew, save));
   store.subscribe((state) => {
     if (document.activeElement !== nameInput) {
       nameInput.value = state.name;
@@ -124,6 +149,11 @@ function main(): void {
       case 'paletteSaved':
         store.set({ paletteId: msg.palette.id, name: msg.palette.name });
         toast(`Saved "${msg.palette.name}"`);
+        break;
+      case 'paletteRenamed':
+        if (store.state.paletteId === msg.id) {
+          store.set({ name: msg.name });
+        }
         break;
       case 'paletteImported':
         store.loadColors(msg.palette.colors, msg.palette.name, msg.palette.id);
