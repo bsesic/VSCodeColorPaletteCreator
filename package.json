@@ -24,7 +24,9 @@
     "contrast"
   ],
   "main": "./out/extension/src/extension/extension.js",
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "commands": [
       {
@@ -56,13 +58,48 @@
         "colorPaletteCreator.defaultExportFormat": {
           "type": "string",
           "default": "css",
-          "enum": ["css", "scss", "less", "json", "tailwind", "js", "ts", "gpl", "txt"],
+          "enum": [
+            "css",
+            "scss",
+            "less",
+            "json",
+            "tailwind",
+            "js",
+            "ts",
+            "gpl",
+            "txt"
+          ],
           "description": "Default format used when exporting or inserting a palette."
         },
         "colorPaletteCreator.showStatusBarItem": {
           "type": "boolean",
           "default": true,
           "description": "Show a status bar button that opens the Color Palette Creator."
+        },
+        "colorPaletteCreator.inlineColors.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a color box with a color picker in front of color codes (HEX, RGB(A), HSL(A), HSV(A)) in the editor."
+        },
+        "colorPaletteCreator.inlineColors.excludedLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Language IDs in which no inline color boxes are shown."
+        },
+        "colorPaletteCreator.inlineColors.builtInLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "css",
+            "scss",
+            "less"
+          ],
+          "description": "Languages that already have a built-in color provider. Only colors it does not support (HSV, Bootstrap RGB triplets) are added there to avoid duplicate color boxes."
         }
       }
     }

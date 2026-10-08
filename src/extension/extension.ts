@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { EXPORT_FORMATS, ExportFormat, exportPalette } from '../core/palette';
+import { registerInlineColors } from './colorProvider';
 import { EditorTracker, PalettePanel } from './panel';
 import { PaletteStore } from './store';
 
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   };
   updateStatusItem();
+  registerInlineColors(context);
 
   context.subscriptions.push(
     editors,
