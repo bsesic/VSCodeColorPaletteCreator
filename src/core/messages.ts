@@ -27,7 +27,10 @@ export interface Settings {
 /** Colors found in the currently edited text document. */
 export interface DocumentColors {
   uri: string;
+  /** Workspace relative path, or only the file name for files outside the workspace. */
   fileName: string;
+  /** Full path, shown as tooltip only. */
+  path: string;
   languageId: string;
   groups: ColorGroup[];
   tooLarge: boolean;
@@ -61,4 +64,6 @@ export type HostMessage =
   | { type: 'paletteSaved'; palette: Palette }
   | { type: 'paletteImported'; palette: Palette }
   | { type: 'paletteRenamed'; id: string; name: string }
-  | { type: 'document:colors'; document: DocumentColors | undefined };
+  | { type: 'document:colors'; document: DocumentColors | undefined }
+  | { type: 'showTab'; tab: string }
+  | { type: 'loadImage'; name: string; dataUrl: string };

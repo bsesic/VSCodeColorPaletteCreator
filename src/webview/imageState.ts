@@ -3,6 +3,7 @@
  * blindness simulation) can use it.
  */
 import { ImageData2D } from '../core/extract.js';
+import { t } from './i18n.js';
 
 export interface LoadedImage {
   name: string;
@@ -37,7 +38,7 @@ export function loadImage(src: string, name: string): Promise<LoadedImage> {
       canvas.height = height;
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) {
-        reject(new Error('Canvas is not available'));
+        reject(new Error(t('Canvas is not available')));
         return;
       }
       ctx.drawImage(img, 0, 0, width, height);
@@ -46,7 +47,7 @@ export function loadImage(src: string, name: string): Promise<LoadedImage> {
       listeners.forEach((l) => l(current as LoadedImage));
       resolve(current);
     };
-    img.onerror = () => reject(new Error(`Could not load image "${name}"`));
+    img.onerror = () => reject(new Error(t('Could not load image "{0}"', name)));
     img.src = src;
   });
 }
@@ -54,12 +55,12 @@ export function loadImage(src: string, name: string): Promise<LoadedImage> {
 /** Reads a File (from an input, drop or paste) and loads it. */
 export function loadImageFile(file: File): Promise<LoadedImage> {
   if (!file.type.startsWith('image/')) {
-    return Promise.reject(new Error(`"${file.name}" is not an image`));
+    return Promise.reject(new Error(t('"{0}" is not an image', file.name)));
   }
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => loadImage(String(reader.result), file.name).then(resolve, reject);
-    reader.onerror = () => reject(new Error(`Could not read "${file.name}"`));
+    reader.onerror = () => reject(new Error(t('Could not read "{0}"', file.name)));
     reader.readAsDataURL(file);
   });
 }

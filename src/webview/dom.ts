@@ -69,6 +69,12 @@ export function select<T extends string>(
   return el;
 }
 
+/** HTML for an icon followed by an (escaped) text label. */
+export function iconText(icon: string, text: string): string {
+  const escaped = text.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c);
+  return `${icon} ${escaped}`;
+}
+
 const svg = (path: string): string =>
   `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">${path}</svg>`;
 

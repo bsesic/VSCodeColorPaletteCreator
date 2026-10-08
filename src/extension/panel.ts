@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { HostMessage, WebviewMessage } from '../core/messages';
-import { EXPORT_FORMATS, ExportFormat, exportPalette, parsePaletteFile, slugify } from '../core/palette';
+import { ExportFormat, slugify } from '../core/palette';
+import { defaultUri, exportPaletteToFile, importPaletteFromFile } from './fileIO';
 import { DocumentColorSync } from './documentColors';
 import { PaletteStore } from './store';
 
@@ -13,6 +14,9 @@ export class PalettePanel {
 
   private readonly disposables: vscode.Disposable[] = [];
   private readonly documentColors: DocumentColorSync;
+  private ready = false;
+  private pendingTab: string | undefined;
+  private pendingMessages: HostMessage[] = [];
 
   static show(context: vscode.ExtensionContext, store: PaletteStore, editors: EditorTracker): PalettePanel {
     if (PalettePanel.current) {
@@ -21,7 +25,7 @@ export class PalettePanel {
     }
     const panel = vscode.window.createWebviewPanel(
       PalettePanel.viewType,
-      'Color Palette Creator',
+      vscode.l10n.t('Color Palette Creator'),
       vscode.ViewColumn.Beside,
       {
         enableScripts: true,
@@ -41,11 +45,40 @@ export class PalettePanel {
   ) {
     this.documentColors = new DocumentColorSync(editors, (message) => this.post(message), () => panel.viewColumn);
     this.disposables.push(this.documentColors);
-    panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'icon.svg');
+    panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'images', 'icon.png');
     panel.webview.html = this.renderHtml();
     panel.onDidDispose(() => this.dispose(), null, this.disposables);
     panel.webview.onDidReceiveMessage((msg: WebviewMessage) => this.handle(msg), null, this.disposables);
     store.onDidChange(() => this.post({ type: 'palettes', palettes: store.palettes }), null, this.disposables);
+  }
+
+  /** Shows a tab of the webview (queued until the webview has loaded). */
+  showTab(tab: string): void {
+    if (this.ready) {
+      this.post({ type: 'showTab', tab });
+    } else {
+      this.pendingTab = tab;
+    }
+  }
+
+  /** Loads an image file into the Image tab. */
+  async loadImage(uri: vscode.Uri): Promise<void> {
+    const ext = (uri.path.split('.').pop() ?? 'png').toLowerCase();
+    const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+    const data = Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('base64');
+    const message: HostMessage = { type: 'loadImage', name: uri.path.split('/').pop() ?? 'image', dataUrl: `data:${mime};base64,${data}` };
+    if (this.ready) {
+      this.post(message);
+    } else {
+      this.pendingMessages.push(message);
+    }
+  }
+
+  private async importPalette(): Promise<void> {
+    const palette = await importPaletteFromFile(this.store);
+    if (palette) {
+      this.post({ type: 'paletteImported', palette });
+    }
   }
 
   post(message: HostMessage): void {
@@ -68,6 +101,13 @@ export class PalettePanel {
             settings: { defaultExportFormat: this.config.get<ExportFormat>('defaultExportFormat', 'css') }
           });
           this.documentColors.scan();
+          this.ready = true;
+          if (this.pendingTab) {
+            this.post({ type: 'showTab', tab: this.pendingTab });
+            this.pendingTab = undefined;
+          }
+          this.pendingMessages.forEach((m) => this.post(m));
+          this.pendingMessages = [];
           break;
         case 'document:refresh':
           this.documentColors.scan();
@@ -83,7 +123,7 @@ export class PalettePanel {
           break;
         case 'copy':
           await vscode.env.clipboard.writeText(msg.text);
-          vscode.window.setStatusBarMessage(`Copied ${msg.label ?? msg.text}`, 2500);
+          vscode.window.setStatusBarMessage(vscode.l10n.t('Copied {0}', msg.label ?? msg.text), 2500);
           break;
         case 'insert':
           await this.insertIntoEditor(msg.text);
@@ -114,7 +154,7 @@ export class PalettePanel {
         case 'palette:duplicate': {
           const source = this.store.getPalette(msg.id);
           if (source) {
-            await this.store.savePalette({ name: `${source.name} copy`, colors: source.colors });
+            await this.store.savePalette({ name: vscode.l10n.t('{0} copy', source.name), colors: source.colors });
           }
           break;
         }
@@ -122,7 +162,7 @@ export class PalettePanel {
           await this.deletePalette(msg.id);
           break;
         case 'palette:export':
-          await this.exportPalette(msg.palette, msg.format);
+          await exportPaletteToFile(msg.palette, msg.format);
           break;
         case 'palette:saveImage':
           await this.saveImage(msg.name, msg.dataUrl);
@@ -134,7 +174,7 @@ export class PalettePanel {
           break;
       }
     } catch (err) {
-      vscode.window.showErrorMessage(`Color Palette Creator: ${err instanceof Error ? err.message : String(err)}`);
+      vscode.window.showErrorMessage(vscode.l10n.t('Color Palette Creator: {0}', err instanceof Error ? err.message : String(err)));
     }
   }
 
@@ -154,9 +194,9 @@ export class PalettePanel {
       return;
     }
     const name = await vscode.window.showInputBox({
-      title: 'Rename palette',
+      title: vscode.l10n.t('Rename palette'),
       value: palette.name,
-      validateInput: (value) => (value.trim() ? undefined : 'The name must not be empty.')
+      validateInput: (value) => (value.trim() ? undefined : vscode.l10n.t('The name must not be empty.'))
     });
     if (name) {
       await this.store.renamePalette(id, name.trim());
@@ -169,69 +209,28 @@ export class PalettePanel {
     if (!palette) {
       return;
     }
+    const confirm = vscode.l10n.t('Delete');
     const answer = await vscode.window.showWarningMessage(
-      `Delete the palette "${palette.name}"?`, { modal: true, detail: 'This cannot be undone.' }, 'Delete');
-    if (answer === 'Delete') {
+      vscode.l10n.t('Delete the palette "{0}"?', palette.name), { modal: true, detail: vscode.l10n.t('This cannot be undone.') }, confirm);
+    if (answer === confirm) {
       await this.store.deletePalette(id);
-    }
-  }
-
-  private defaultUri(fileName: string): vscode.Uri | undefined {
-    const folder = vscode.workspace.workspaceFolders?.[0]?.uri;
-    return folder ? vscode.Uri.joinPath(folder, fileName) : undefined;
-  }
-
-  private async exportPalette(palette: { name: string; colors: string[] }, format: ExportFormat): Promise<void> {
-    const info = EXPORT_FORMATS.find((f) => f.id === format) ?? EXPORT_FORMATS[0];
-    const uri = await vscode.window.showSaveDialog({
-      title: `Export palette as ${info.label}`,
-      defaultUri: this.defaultUri(`${slugify(palette.name)}.${info.extension}`),
-      filters: { [info.label]: [info.extension] }
-    });
-    if (!uri) {
-      return;
-    }
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(exportPalette(palette, format), 'utf8'));
-    const open = await vscode.window.showInformationMessage(`Palette exported to ${uri.fsPath}`, 'Open');
-    if (open) {
-      await vscode.window.showTextDocument(uri);
     }
   }
 
   private async saveImage(name: string, dataUrl: string): Promise<void> {
     const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl);
     if (!match) {
-      throw new Error('Invalid image data.');
+      throw new Error(vscode.l10n.t('Invalid image data.'));
     }
     const uri = await vscode.window.showSaveDialog({
-      title: 'Save palette as image',
-      defaultUri: this.defaultUri(`${slugify(name)}.png`),
-      filters: { 'PNG image': ['png'] }
+      title: vscode.l10n.t('Save palette as image'),
+      defaultUri: defaultUri(`${slugify(name)}.png`),
+      filters: { [vscode.l10n.t('PNG image')]: ['png'] }
     });
     if (uri) {
       await vscode.workspace.fs.writeFile(uri, Buffer.from(match[1], 'base64'));
-      vscode.window.showInformationMessage(`Palette image saved to ${uri.fsPath}`);
+      vscode.window.showInformationMessage(vscode.l10n.t('Palette image saved to {0}', uri.fsPath));
     }
-  }
-
-  private async importPalette(): Promise<void> {
-    const [uri] = await vscode.window.showOpenDialog({
-      title: 'Import palette',
-      canSelectMany: false,
-      filters: { 'Palette files': ['json', 'css', 'scss', 'less', 'txt', 'gpl', 'js', 'ts'], 'All files': ['*'] }
-    }) ?? [];
-    if (!uri) {
-      return;
-    }
-    const text = Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8');
-    const fileName = uri.path.split('/').pop()?.replace(/\.[^.]+$/, '') ?? 'Imported palette';
-    const parsed = parsePaletteFile(text, fileName);
-    if (!parsed) {
-      vscode.window.showWarningMessage('No colors were found in the selected file.');
-      return;
-    }
-    const palette = await this.store.savePalette({ name: parsed.name, colors: parsed.colors.slice(0, 12) });
-    this.post({ type: 'paletteImported', palette });
   }
 
   /** Inserts text at the cursor(s) of the last active text editor. */
@@ -239,7 +238,7 @@ export class PalettePanel {
     const editor = this.editors.lastEditor;
     if (!editor) {
       await vscode.env.clipboard.writeText(text);
-      vscode.window.showInformationMessage('No open text editor found. The text was copied to the clipboard instead.');
+      vscode.window.showInformationMessage(vscode.l10n.t('No open text editor found. The text was copied to the clipboard instead.'));
       return;
     }
     await editor.edit((edit) => {
@@ -260,8 +259,10 @@ export class PalettePanel {
       `script-src 'nonce-${nonce}'`,
       `font-src ${webview.cspSource}`
     ].join('; ');
+    // The l10n bundle of the display language (undefined for English) is embedded for the webview.
+    const bundle = JSON.stringify(vscode.l10n.bundle ?? {}).replace(/</g, '\\u003c');
     return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${vscode.env.language}">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="${csp}">
@@ -270,6 +271,7 @@ export class PalettePanel {
   <title>Color Palette Creator</title>
 </head>
 <body>
+  <script type="application/json" id="l10n-bundle">${bundle}</script>
   <div id="app"></div>
   <script type="module" nonce="${nonce}" src="${media('out', 'webview', 'main.js')}"></script>
 </body>

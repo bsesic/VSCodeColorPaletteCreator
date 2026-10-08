@@ -1,7 +1,8 @@
 /**
  * Renders a palette as a PNG image (title, color blocks, HEX/RGB labels).
  */
-import { describeColor, formatColor, readableTextColor } from '../core/color.js';
+import { formatColor, readableTextColor } from '../core/color.js';
+import { colorName, t } from './i18n.js';
 
 export function renderPaletteImage(name: string, colors: string[]): string {
   const swatchWidth = 200;
@@ -13,7 +14,7 @@ export function renderPaletteImage(name: string, colors: string[]): string {
   canvas.height = header + swatchHeight + padding;
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    throw new Error('Canvas is not available');
+    throw new Error(t('Canvas is not available'));
   }
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -33,7 +34,7 @@ export function renderPaletteImage(name: string, colors: string[]): string {
     ctx.font = '14px ui-monospace, monospace';
     ctx.fillText(formatColor(hex, 'rgb'), x + swatchWidth / 2, header + swatchHeight - 44);
     ctx.font = '14px system-ui, sans-serif';
-    ctx.fillText(describeColor(hex), x + swatchWidth / 2, header + swatchHeight - 22);
+    ctx.fillText(colorName(hex), x + swatchWidth / 2, header + swatchHeight - 22);
     ctx.textAlign = 'start';
   });
   return canvas.toDataURL('image/png');

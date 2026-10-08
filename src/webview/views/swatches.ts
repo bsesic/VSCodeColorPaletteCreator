@@ -2,19 +2,20 @@
  * The palette swatch strip: select, edit, copy, lock, set base color, edit
  * tint/shade, reorder via drag and drop, add and delete swatches.
  */
-import { describeColor, formatColor, readableTextColor, tintShadeScale } from '../../core/color.js';
+import { formatColor, readableTextColor, tintShadeScale } from '../../core/color.js';
 import { ICONS, append, clear, h, iconButton } from '../dom.js';
 import { AppState, MAX_SWATCHES, MIN_SWATCHES, store } from '../store.js';
+import { colorName, t } from '../i18n.js';
 
 export function createSwatchStrip(): HTMLElement {
-  const strip = h('div', { class: 'swatch-strip', role: 'listbox', 'aria-label': 'Palette colors' });
+  const strip = h('div', { class: 'swatch-strip', role: 'listbox', 'aria-label': t('Palette colors') });
   let tintIndex = -1;
   let dragFrom = -1;
   let signature = '';
   const parts: Array<{ root: HTMLElement; hex: HTMLElement; name: HTMLElement; tints?: HTMLElement }> = [];
 
   const buildTints = (index: number, hex: string): HTMLElement => {
-    const box = h('div', { class: 'tint-overlay', role: 'list', 'aria-label': 'Tints and shades' });
+    const box = h('div', { class: 'tint-overlay', role: 'list', 'aria-label': t('Tints and shades') });
     // Light tints on top, dark shades at the bottom.
     for (const tint of tintShadeScale(hex, 11).reverse()) {
       box.appendChild(h('button', {
@@ -38,35 +39,35 @@ export function createSwatchStrip(): HTMLElement {
     parts.length = 0;
     state.swatches.forEach((swatch, index) => {
       const isBase = index === state.baseIndex;
-      const hexLabel = h('button', { class: 'swatch-hex', type: 'button', title: 'Copy color code' });
+      const hexLabel = h('button', { class: 'swatch-hex', type: 'button', title: t('Copy color code') });
       hexLabel.addEventListener('click', (e) => {
         e.stopPropagation();
         store.copyColor(store.state.swatches[index].hex);
       });
       const name = h('span', { class: 'swatch-name' });
       const actions = h('div', { class: 'swatch-actions' },
-        iconButton(swatch.locked ? ICONS.lock : ICONS.unlock, swatch.locked ? 'Unlock' : 'Lock (keep when generating)',
+        iconButton(swatch.locked ? ICONS.lock : ICONS.unlock, swatch.locked ? t('Unlock') : t('Lock (keep when generating)'),
           (e) => { e.stopPropagation(); store.toggleLock(index); }, swatch.locked ? 'active' : ''),
-        iconButton(isBase ? ICONS.star : ICONS.starOutline, isBase ? 'Base color' : 'Set as base color',
+        iconButton(isBase ? ICONS.star : ICONS.starOutline, isBase ? t('Base color') : t('Set as base color'),
           (e) => { e.stopPropagation(); store.setBase(index); }, isBase ? 'active' : ''),
-        iconButton(ICONS.tint, 'Edit tint / shade', (e) => {
+        iconButton(ICONS.tint, t('Edit tint / shade'), (e) => {
           e.stopPropagation();
           tintIndex = tintIndex === index ? -1 : index;
           render(store.state);
         }, tintIndex === index ? 'active' : ''),
-        iconButton(ICONS.copy, 'Copy color code', (e) => { e.stopPropagation(); store.copyColor(store.state.swatches[index].hex); }),
-        iconButton(ICONS.plus, 'Add a color after this one', (e) => { e.stopPropagation(); store.addSwatch(index); }),
+        iconButton(ICONS.copy, t('Copy color code'), (e) => { e.stopPropagation(); store.copyColor(store.state.swatches[index].hex); }),
+        iconButton(ICONS.plus, t('Add a color after this one'), (e) => { e.stopPropagation(); store.addSwatch(index); }),
         state.swatches.length > MIN_SWATCHES
-          ? iconButton(ICONS.trash, 'Delete color', (e) => { e.stopPropagation(); store.removeSwatch(index); })
+          ? iconButton(ICONS.trash, t('Delete color'), (e) => { e.stopPropagation(); store.removeSwatch(index); })
           : null,
-        h('span', { class: 'drag-handle', title: 'Drag to reorder', html: ICONS.drag }));
+        h('span', { class: 'drag-handle', title: t('Drag to reorder'), html: ICONS.drag }));
 
       const root = h('div', {
         class: `swatch${index === state.selected ? ' selected' : ''}${swatch.locked ? ' locked' : ''}`,
         role: 'option', 'aria-selected': String(index === state.selected), tabindex: 0, draggable: 'true'
       }, actions, h('div', { class: 'swatch-label' }, hexLabel, name),
-      isBase ? h('span', { class: 'base-badge', title: 'Base color', html: ICONS.star }) : null,
-      swatch.locked ? h('span', { class: 'lock-badge', title: 'Locked', html: ICONS.lock }) : null);
+      isBase ? h('span', { class: 'base-badge', title: t('Base color'), html: ICONS.star }) : null,
+      swatch.locked ? h('span', { class: 'lock-badge', title: t('Locked'), html: ICONS.lock }) : null);
       root.addEventListener('click', () => store.select(index));
       root.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') { store.select(index); }
@@ -99,7 +100,7 @@ export function createSwatchStrip(): HTMLElement {
     });
     if (state.swatches.length < MAX_SWATCHES) {
       strip.appendChild(h('button', {
-        class: 'add-swatch', type: 'button', title: 'Add color', 'aria-label': 'Add color', html: ICONS.plus,
+        class: 'add-swatch', type: 'button', title: t('Add color'), 'aria-label': t('Add color'), html: ICONS.plus,
         onclick: () => store.addSwatch()
       }));
     }
@@ -119,9 +120,12 @@ export function createSwatchStrip(): HTMLElement {
       const fg = readableTextColor(swatch.hex);
       part.root.style.background = swatch.hex;
       part.root.style.color = fg;
-      part.hex.textContent = formatColor(swatch.hex, state.copyFormat);
-      part.name.textContent = describeColor(swatch.hex);
-      part.root.setAttribute('aria-label', `${swatch.hex} ${describeColor(swatch.hex)}`);
+      const label = formatColor(swatch.hex, state.copyFormat);
+      part.hex.textContent = label;
+      part.hex.title = t('Copy {0}', label);
+      part.hex.classList.toggle('long', label.length > 9);
+      part.name.textContent = colorName(swatch.hex);
+      part.root.setAttribute('aria-label', `${swatch.hex} ${colorName(swatch.hex)}`);
     });
   };
 

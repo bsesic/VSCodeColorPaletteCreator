@@ -140,8 +140,24 @@ select { background: var(--vscode-dropdown-background); color: var(--vscode-drop
   font-weight: 600;
   padding: 2px 4px;
   font-size: 0.95em;
-  word-break: break-all;
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   justify-content: center;
+}
+/* Scale the label with the swatch width so codes fit without truncation. */
+.swatch { container-type: inline-size; }
+.swatch-hex { font-size: clamp(9px, 15cqw, 0.95em); padding: 2px; }
+.swatch-hex.long {
+  font-size: clamp(8px, 8.5cqw, 0.78em);
+  /* Long notations may wrap between values, never inside a number. */
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  text-overflow: clip;
+  line-height: 1.25;
 }
 .swatch-hex:hover { background: rgba(127, 127, 127, 0.25); }
 .swatch-name { font-size: 0.8em; opacity: 0.8; }
