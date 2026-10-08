@@ -1,7 +1,7 @@
 {
   "name": "vscode-color-palette-creator",
   "displayName": "Color Palette Creator",
-  "description": "Color picker, palette generator with color harmonies, image color extraction, gradients, WCAG contrast checker, color blindness simulator, inline color pickers and live editing of the colors in your code.",
+  "description": "%description%",
   "version": "1.0.0",
   "publisher": "bsesic",
   "license": "MIT",
@@ -46,6 +46,7 @@
     "theme"
   ],
   "main": "./out/extension/src/extension/extension.js",
+  "l10n": "./l10n",
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -53,71 +54,71 @@
     "commands": [
       {
         "command": "colorPaletteCreator.open",
-        "title": "Open Color Palette Creator",
-        "category": "Color Palette",
+        "title": "%command.open%",
+        "category": "%category%",
         "icon": "$(symbol-color)"
       },
       {
         "command": "colorPaletteCreator.openDocumentColors",
-        "title": "Edit Colors of Current File",
-        "category": "Color Palette",
+        "title": "%command.openDocumentColors%",
+        "category": "%category%",
         "icon": "$(edit)"
       },
       {
         "command": "colorPaletteCreator.openImageExtraction",
-        "title": "Extract Colors from Image",
-        "category": "Color Palette",
+        "title": "%command.openImageExtraction%",
+        "category": "%category%",
         "icon": "$(file-media)"
       },
       {
         "command": "colorPaletteCreator.openGradientGenerator",
-        "title": "Open Gradient Generator",
-        "category": "Color Palette"
+        "title": "%command.openGradientGenerator%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.openContrastChecker",
-        "title": "Open Contrast Checker",
-        "category": "Color Palette"
+        "title": "%command.openContrastChecker%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.openColorBlindnessSimulator",
-        "title": "Open Color Blindness Simulator",
-        "category": "Color Palette"
+        "title": "%command.openColorBlindnessSimulator%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.openSavedPalettes",
-        "title": "Manage Saved Palettes",
-        "category": "Color Palette"
+        "title": "%command.openSavedPalettes%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.openHistory",
-        "title": "Show Color History",
-        "category": "Color Palette"
+        "title": "%command.openHistory%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.insertPalette",
-        "title": "Insert Saved Palette...",
-        "category": "Color Palette"
+        "title": "%command.insertPalette%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.exportPalette",
-        "title": "Export Saved Palette...",
-        "category": "Color Palette"
+        "title": "%command.exportPalette%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.importPalette",
-        "title": "Import Palette from File...",
-        "category": "Color Palette"
+        "title": "%command.importPalette%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.toggleInlineColors",
-        "title": "Toggle Inline Color Boxes",
-        "category": "Color Palette"
+        "title": "%command.toggleInlineColors%",
+        "category": "%category%"
       },
       {
         "command": "colorPaletteCreator.clearHistory",
-        "title": "Clear Color History",
-        "category": "Color Palette"
+        "title": "%command.clearHistory%",
+        "category": "%category%"
       }
     ],
     "keybindings": [
@@ -154,14 +155,14 @@
       ]
     },
     "configuration": {
-      "title": "Color Palette Creator",
+      "title": "%configuration.title%",
       "properties": {
         "colorPaletteCreator.historySize": {
           "type": "number",
           "default": 60,
           "minimum": 10,
           "maximum": 500,
-          "description": "Maximum number of colors kept in the color history."
+          "description": "%configuration.historySize%"
         },
         "colorPaletteCreator.defaultExportFormat": {
           "type": "string",
@@ -177,17 +178,17 @@
             "gpl",
             "txt"
           ],
-          "description": "Default format used when exporting or inserting a palette."
+          "description": "%configuration.defaultExportFormat%"
         },
         "colorPaletteCreator.showStatusBarItem": {
           "type": "boolean",
           "default": true,
-          "description": "Show a status bar button that opens the Color Palette Creator."
+          "description": "%configuration.showStatusBarItem%"
         },
         "colorPaletteCreator.inlineColors.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Show a color box with a color picker in front of color codes (HEX, RGB(A), HSL(A), HSV(A)) in the editor."
+          "description": "%configuration.inlineColors.enabled%"
         },
         "colorPaletteCreator.inlineColors.excludedLanguages": {
           "type": "array",
@@ -195,7 +196,7 @@
             "type": "string"
           },
           "default": [],
-          "description": "Language IDs in which no inline color boxes are shown."
+          "description": "%configuration.inlineColors.excludedLanguages%"
         },
         "colorPaletteCreator.inlineColors.builtInLanguages": {
           "type": "array",
@@ -207,12 +208,12 @@
             "scss",
             "less"
           ],
-          "description": "Languages that already have a built-in color provider. Only colors it does not support (HSV, Bootstrap RGB triplets) are added there to avoid duplicate color boxes."
+          "description": "%configuration.inlineColors.builtInLanguages%"
         },
         "colorPaletteCreator.documentColors.autoSave": {
           "type": "boolean",
           "default": false,
-          "description": "Save the document automatically after changing a color in the Document tab (useful with live reload servers)."
+          "description": "%configuration.documentColors.autoSave%"
         }
       }
     }
@@ -226,7 +227,8 @@
     "vscode:prepublish": "npm run compile",
     "precommit": "npm run lint && npm test",
     "package": "vsce package",
-    "icon": "node scripts/render-icon.mjs"
+    "icon": "node scripts/render-icon.mjs",
+    "l10n": "node scripts/extract-l10n.mjs"
   },
   "devDependencies": {
     "@resvg/resvg-js": "~2.6.2",

@@ -11,6 +11,7 @@ import { ICONS, append, clear, h, iconButton, select as selectBox } from '../dom
 import { MAX_SWATCHES, store } from '../store.js';
 import { toast } from '../toast.js';
 import { View } from './view.js';
+import { t } from '../i18n.js';
 
 /** Minimum time between two edits while dragging (ms). */
 const EDIT_INTERVAL = 50;
@@ -47,9 +48,9 @@ export function createDocumentView(): View {
     }
   };
 
-  const title = h('h3', { class: 'panel-title grow' }, 'Document colors');
+  const title = h('h3', { class: 'panel-title grow' }, t('Document colors'));
   const info = h('p', { class: 'hint' });
-  const grid = h('div', { class: 'doc-grid', role: 'listbox', 'aria-label': 'Colors in the document' });
+  const grid = h('div', { class: 'doc-grid', role: 'listbox', 'aria-label': t('Colors in the document') });
   const detail = h('section', { class: 'card doc-detail', hidden: true });
   const detailTitle = h('h3', { class: 'panel-title' });
   const detailMeta = h('div', { class: 'doc-meta' });
@@ -65,7 +66,7 @@ export function createDocumentView(): View {
 
   const autoSave = h('input', { type: 'checkbox' });
   autoSave.addEventListener('change', () => post({ type: 'document:setAutoSave', enabled: autoSave.checked }));
-  const search = h('input', { type: 'text', placeholder: 'Filter by color or variable…', class: 'grow', 'aria-label': 'Filter colors' });
+  const search = h('input', { type: 'text', placeholder: t('Filter by color or variable…'), class: 'grow', 'aria-label': t('Filter colors') });
   search.addEventListener('input', () => { filter = search.value.trim().toLowerCase(); renderGrid(); });
 
   const reveal = (group: ColorGroup, index: number): void => {
@@ -111,7 +112,7 @@ export function createDocumentView(): View {
       const tile = h('button', {
         class: `doc-tile${group.key === selectedKey ? ' selected' : ''}`, type: 'button', role: 'option',
         'aria-selected': String(group.key === selectedKey),
-        title: `${group.count} occurrence(s)${group.names.length ? `\n${group.names.join('\n')}` : ''}`,
+        title: `${t('{0} occurrence(s)', group.count)}${group.names.length ? `\n${group.names.join('\n')}` : ''}`,
         onclick: () => select(group)
       },
       h('span', { class: 'doc-tile-color', style: `background:${group.hex};color:${fg};opacity:${Math.max(group.alpha, 0.15)}` },
@@ -122,7 +123,7 @@ export function createDocumentView(): View {
       grid.appendChild(tile);
     }
     if (groups.length === 0) {
-      grid.appendChild(h('p', { class: 'hint' }, doc.groups.length ? 'No colors match the filter.' : 'No color codes found in this file.'));
+      grid.appendChild(h('p', { class: 'hint' }, doc.groups.length ? t('No colors match the filter.') : t('No color codes found in this file.')));
     }
   }
 
@@ -131,40 +132,40 @@ export function createDocumentView(): View {
     detail.hidden = !doc || !selectedKey;
     if (!group || !doc) {
       if (selectedKey && doc) {
-        detailTitle.textContent = 'Updating…';
+        detailTitle.textContent = t('Updating…');
       }
       return;
     }
     if (Date.now() - lastSent > 600) {
       picker.setColor(group.hex); // External change, e.g. typed in the editor.
     }
-    detailTitle.textContent = `${groupLabel(group)} · ${group.count} occurrence(s)`;
+    detailTitle.textContent = `${groupLabel(group)} · ${t('{0} occurrence(s)', group.count)}`;
     clear(detailMeta);
     occurrence = Math.min(occurrence, group.count - 1);
     const occurrences = selectBox(
       group.lines.map((line, i) => ({
         id: String(i),
-        label: `${i + 1} / ${group.count} · Line ${line + 1}${group.occurrenceNames[i] ? ` · ${group.occurrenceNames[i]}` : ''}`
+        label: `${i + 1} / ${group.count} · ${t('Line {0}', line + 1)}${group.occurrenceNames[i] ? ` · ${group.occurrenceNames[i]}` : ''}`
       })),
       String(occurrence),
       (value) => reveal(group, Number(value)),
-      'Go to occurrence');
+      t('Go to occurrence'));
     occurrences.classList.add('grow');
     detailMeta.appendChild(h('div', { class: 'doc-nav' },
-      iconButton(ICONS.chevronLeft, 'Previous occurrence', () => reveal(group, occurrence - 1)),
+      iconButton(ICONS.chevronLeft, t('Previous occurrence'), () => reveal(group, occurrence - 1)),
       occurrences,
-      iconButton(ICONS.chevronRight, 'Next occurrence (or click the swatch again)', () => reveal(group, occurrence + 1))));
+      iconButton(ICONS.chevronRight, t('Next occurrence (or click the swatch again)'), () => reveal(group, occurrence + 1))));
     clear(paletteChips);
     store.colors.forEach((hex) => paletteChips.appendChild(h('button', {
-      class: 'chip', type: 'button', title: `Replace with ${hex}`, style: `background:${hex}`,
+      class: 'chip', type: 'button', title: t('Replace with {0}', hex), style: `background:${hex}`,
       onclick: () => { picker.setColor(hex); sendColor(hex); }
     })));
   }
 
   function render(): void {
     if (!doc) {
-      title.textContent = 'Document colors';
-      info.textContent = 'Open a file in the editor to see its colors here.';
+      title.textContent = t('Document colors');
+      info.textContent = t('Open a file in the editor to see its colors here.');
       clear(grid);
       detail.hidden = true;
       return;
@@ -173,9 +174,9 @@ export function createDocumentView(): View {
     title.title = doc.path;
     autoSave.checked = doc.autoSave;
     info.textContent = doc.tooLarge
-      ? 'This file is too large to be scanned.'
-      : `${doc.groups.length} colors · ${doc.groups.reduce((n, g) => n + g.count, 0)} occurrences · ${doc.languageId}. `
-        + 'Click a color to jump to it in the editor (click again for the next occurrence) and to change all its occurrences. Each change can be undone in the editor (Ctrl+Z).';
+      ? t('This file is too large to be scanned.')
+      : t('{0} colors · {1} occurrences · {2}.', doc.groups.length, doc.groups.reduce((n, g) => n + g.count, 0), doc.languageId)
+        + ' ' + t('Click a color to jump to it in the editor (click again for the next occurrence) and to change all its occurrences. Each change can be undone in the editor (Ctrl+Z).');
     renderGrid();
     renderDetail();
   }
@@ -194,24 +195,24 @@ export function createDocumentView(): View {
   store.subscribe(() => { if (!detail.hidden) { renderDetail(); } });
 
   append(detail, detailTitle, detailMeta, picker.element,
-    h('div', { class: 'section-label' }, 'Replace with a palette color'), paletteChips);
+    h('div', { class: 'section-label' }, t('Replace with a palette color')), paletteChips);
 
   const element = h('div', { class: 'document-view' },
     h('section', { class: 'card' },
       h('div', { class: 'toolbar' }, title,
-        h('label', { class: 'inline-label', title: 'Save the file after each change, e.g. for live reload servers' }, autoSave, 'Auto-save'),
-        iconButton(ICONS.refresh, 'Rescan document', () => post({ type: 'document:refresh' })),
+        h('label', { class: 'inline-label', title: t('Save the file after each change, e.g. for live reload servers') }, autoSave, t('Auto-save')),
+        iconButton(ICONS.refresh, t('Rescan document'), () => post({ type: 'document:refresh' })),
         h('button', {
-          type: 'button', title: 'Load the most used colors into the palette', onclick: () => {
-            if (!doc?.groups.length) { toast('No colors to load.'); return; }
+          type: 'button', title: t('Load the most used colors into the palette'), onclick: () => {
+            if (!doc?.groups.length) { toast(t('No colors to load.')); return; }
             store.loadColors(doc.groups.slice(0, MAX_SWATCHES).map((g) => g.hex), doc.fileName.split('/').pop());
           }
-        }, 'Use as palette'),
-        iconButton(ICONS.copy, 'Copy all colors', () => doc && store.copyText(doc.groups.map((g) => formatColor(g.hex, store.state.copyFormat)).join(', '), 'document colors'))),
+        }, t('Use as palette')),
+        iconButton(ICONS.copy, t('Copy all colors'), () => doc && store.copyText(doc.groups.map((g) => formatColor(g.hex, store.state.copyFormat)).join(', '), t('document colors')))),
       info,
       h('div', { class: 'toolbar' }, search),
       grid),
     detail);
   render();
-  return { id: 'document', label: 'Document', element, onShow: () => post({ type: 'document:refresh' }) };
+  return { id: 'document', label: t('Document'), element, onShow: () => post({ type: 'document:refresh' }) };
 }

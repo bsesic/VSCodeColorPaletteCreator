@@ -6,6 +6,7 @@ import { HarmonyMode, applyHarmony, generateHarmony } from '../core/harmony.js';
 import { Settings, Swatch, WorkingState } from '../core/messages.js';
 import { Palette } from '../core/palette.js';
 import { post, setViewState } from './api.js';
+import { t } from './i18n.js';
 import { toast } from './toast.js';
 
 export const MIN_SWATCHES = 2;
@@ -25,7 +26,7 @@ const DEFAULT_COLORS = ['#264653', '#2A9D8F', '#E9C46A', '#F4A261', '#E76F51'];
 
 class Store {
   state: AppState = {
-    name: 'Untitled palette',
+    name: t('Untitled palette'),
     swatches: DEFAULT_COLORS.map((hex) => ({ hex, locked: false })),
     baseIndex: 0,
     harmony: 'custom',
@@ -171,7 +172,7 @@ class Store {
   addSwatch(afterIndex = this.state.swatches.length - 1): void {
     const { swatches } = this.state;
     if (swatches.length >= MAX_SWATCHES) {
-      toast(`A palette can have at most ${MAX_SWATCHES} colors.`);
+      toast(t('A palette can have at most {0} colors.', MAX_SWATCHES));
       return;
     }
     this.checkpoint();
@@ -193,7 +194,7 @@ class Store {
   removeSwatch(index: number): void {
     const { swatches } = this.state;
     if (swatches.length <= MIN_SWATCHES) {
-      toast(`A palette needs at least ${MIN_SWATCHES} colors.`);
+      toast(t('A palette needs at least {0} colors.', MIN_SWATCHES));
       return;
     }
     this.checkpoint();
@@ -246,12 +247,12 @@ class Store {
     const text = formatColor(hex, format);
     post({ type: 'copy', text });
     this.addToHistory([hex]);
-    toast(`Copied ${text}`, hex);
+    toast(t('Copied {0}', text), hex);
   }
 
   copyText(text: string, label: string): void {
     post({ type: 'copy', text, label });
-    toast(`Copied ${label}`);
+    toast(t('Copied {0}', label));
   }
 
   addToHistory(colors: string[]): void {

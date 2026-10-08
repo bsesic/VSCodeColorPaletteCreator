@@ -25,7 +25,7 @@ export class PalettePanel {
     }
     const panel = vscode.window.createWebviewPanel(
       PalettePanel.viewType,
-      'Color Palette Creator',
+      vscode.l10n.t('Color Palette Creator'),
       vscode.ViewColumn.Beside,
       {
         enableScripts: true,
@@ -123,7 +123,7 @@ export class PalettePanel {
           break;
         case 'copy':
           await vscode.env.clipboard.writeText(msg.text);
-          vscode.window.setStatusBarMessage(`Copied ${msg.label ?? msg.text}`, 2500);
+          vscode.window.setStatusBarMessage(vscode.l10n.t('Copied {0}', msg.label ?? msg.text), 2500);
           break;
         case 'insert':
           await this.insertIntoEditor(msg.text);
@@ -154,7 +154,7 @@ export class PalettePanel {
         case 'palette:duplicate': {
           const source = this.store.getPalette(msg.id);
           if (source) {
-            await this.store.savePalette({ name: `${source.name} copy`, colors: source.colors });
+            await this.store.savePalette({ name: vscode.l10n.t('{0} copy', source.name), colors: source.colors });
           }
           break;
         }
@@ -174,7 +174,7 @@ export class PalettePanel {
           break;
       }
     } catch (err) {
-      vscode.window.showErrorMessage(`Color Palette Creator: ${err instanceof Error ? err.message : String(err)}`);
+      vscode.window.showErrorMessage(vscode.l10n.t('Color Palette Creator: {0}', err instanceof Error ? err.message : String(err)));
     }
   }
 
@@ -194,9 +194,9 @@ export class PalettePanel {
       return;
     }
     const name = await vscode.window.showInputBox({
-      title: 'Rename palette',
+      title: vscode.l10n.t('Rename palette'),
       value: palette.name,
-      validateInput: (value) => (value.trim() ? undefined : 'The name must not be empty.')
+      validateInput: (value) => (value.trim() ? undefined : vscode.l10n.t('The name must not be empty.'))
     });
     if (name) {
       await this.store.renamePalette(id, name.trim());
@@ -209,9 +209,10 @@ export class PalettePanel {
     if (!palette) {
       return;
     }
+    const confirm = vscode.l10n.t('Delete');
     const answer = await vscode.window.showWarningMessage(
-      `Delete the palette "${palette.name}"?`, { modal: true, detail: 'This cannot be undone.' }, 'Delete');
-    if (answer === 'Delete') {
+      vscode.l10n.t('Delete the palette "{0}"?', palette.name), { modal: true, detail: vscode.l10n.t('This cannot be undone.') }, confirm);
+    if (answer === confirm) {
       await this.store.deletePalette(id);
     }
   }
@@ -219,16 +220,16 @@ export class PalettePanel {
   private async saveImage(name: string, dataUrl: string): Promise<void> {
     const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl);
     if (!match) {
-      throw new Error('Invalid image data.');
+      throw new Error(vscode.l10n.t('Invalid image data.'));
     }
     const uri = await vscode.window.showSaveDialog({
-      title: 'Save palette as image',
+      title: vscode.l10n.t('Save palette as image'),
       defaultUri: defaultUri(`${slugify(name)}.png`),
-      filters: { 'PNG image': ['png'] }
+      filters: { [vscode.l10n.t('PNG image')]: ['png'] }
     });
     if (uri) {
       await vscode.workspace.fs.writeFile(uri, Buffer.from(match[1], 'base64'));
-      vscode.window.showInformationMessage(`Palette image saved to ${uri.fsPath}`);
+      vscode.window.showInformationMessage(vscode.l10n.t('Palette image saved to {0}', uri.fsPath));
     }
   }
 
@@ -237,7 +238,7 @@ export class PalettePanel {
     const editor = this.editors.lastEditor;
     if (!editor) {
       await vscode.env.clipboard.writeText(text);
-      vscode.window.showInformationMessage('No open text editor found. The text was copied to the clipboard instead.');
+      vscode.window.showInformationMessage(vscode.l10n.t('No open text editor found. The text was copied to the clipboard instead.'));
       return;
     }
     await editor.edit((edit) => {
@@ -258,8 +259,10 @@ export class PalettePanel {
       `script-src 'nonce-${nonce}'`,
       `font-src ${webview.cspSource}`
     ].join('; ');
+    // The l10n bundle of the display language (undefined for English) is embedded for the webview.
+    const bundle = JSON.stringify(vscode.l10n.bundle ?? {}).replace(/</g, '\\u003c');
     return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${vscode.env.language}">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="${csp}">
@@ -268,6 +271,7 @@ export class PalettePanel {
   <title>Color Palette Creator</title>
 </head>
 <body>
+  <script type="application/json" id="l10n-bundle">${bundle}</script>
   <div id="app"></div>
   <script type="module" nonce="${nonce}" src="${media('out', 'webview', 'main.js')}"></script>
 </body>

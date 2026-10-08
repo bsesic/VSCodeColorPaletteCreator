@@ -5,11 +5,12 @@
 import { readableTextColor } from '../../core/color.js';
 import { extractPalette, sampleAt, sampleLine } from '../../core/extract.js';
 import { evenStops, toCssGradient } from '../../core/gradient.js';
-import { ICONS, append, clear, h, iconButton, select } from '../dom.js';
+import { ICONS, append, clear, h, iconButton, iconText, select } from '../dom.js';
 import { LoadedImage, getImage, loadImageFile, onImageLoaded } from '../imageState.js';
 import { MAX_SWATCHES, store } from '../store.js';
 import { toast } from '../toast.js';
 import { View } from './view.js';
+import { t } from '../i18n.js';
 
 type Mode = 'palette' | 'gradient';
 
@@ -31,24 +32,24 @@ export function createImageView(): View {
   const dotLayer = h('div', { class: 'dot-layer' });
 
   const fileInput = h('input', { type: 'file', accept: 'image/*', hidden: true });
-  const stage = h('div', { class: 'image-stage', tabindex: 0, 'aria-label': 'Image. Click to add a pick marker.' });
+  const stage = h('div', { class: 'image-stage', tabindex: 0, 'aria-label': t('Image. Click to add a pick marker.') });
   const markerLayer = h('div', { class: 'marker-layer' });
   const lineSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   lineSvg.setAttribute('class', 'line-layer');
   const dropZone = h('div', { class: 'drop-zone' },
     h('div', { class: 'drop-icon', html: ICONS.image }),
-    h('p', {}, 'Drop an image here, paste it (Ctrl+V) or'),
-    h('button', { type: 'button', class: 'primary', onclick: () => fileInput.click() }, 'Choose image…'));
+    h('p', {}, t('Drop an image here, paste it (Ctrl+V) or')),
+    h('button', { type: 'button', class: 'primary', onclick: () => fileInput.click() }, t('Choose image…')));
   const results = h('div', { class: 'extract-results' });
   const gradientPreview = h('div', { class: 'gradient-bar' });
 
-  const countInput = h('input', { type: 'number', min: 1, max: MAX_SWATCHES, value: count, 'aria-label': 'Number of colors' });
+  const countInput = h('input', { type: 'number', min: 1, max: MAX_SWATCHES, value: count, 'aria-label': t('Number of colors') });
   countInput.addEventListener('change', () => {
     count = Math.max(1, Math.min(MAX_SWATCHES, Number(countInput.value) || 5));
     countInput.value = String(count);
     autoExtract();
   });
-  const stepsInput = h('input', { type: 'number', min: 2, max: 20, value: steps, 'aria-label': 'Number of gradient stops' });
+  const stepsInput = h('input', { type: 'number', min: 2, max: 20, value: steps, 'aria-label': t('Number of gradient stops') });
   stepsInput.addEventListener('change', () => {
     steps = Math.max(2, Math.min(20, Number(stepsInput.value) || 5));
     stepsInput.value = String(steps);
@@ -56,18 +57,18 @@ export function createImageView(): View {
   });
 
   const modeSelect = select<Mode>([
-    { id: 'palette', label: 'Extract palette' },
-    { id: 'gradient', label: 'Extract gradient' }
-  ], mode, (m) => { mode = m; renderControls(); renderOverlay(); }, 'Extraction mode');
+    { id: 'palette', label: t('Extract palette') },
+    { id: 'gradient', label: t('Extract gradient') }
+  ], mode, (m) => { mode = m; renderControls(); renderOverlay(); }, t('Extraction mode'));
 
-  const paletteControls = h('span', { class: 'inline-label' }, 'Colors', countInput,
-    h('button', { type: 'button', title: 'Pick the dominant colors again', onclick: () => autoExtract(), html: `${ICONS.refresh} Auto pick` }),
-    h('button', { type: 'button', title: 'Remove all markers', onclick: () => { markers = []; renderOverlay(); } }, 'Clear markers'));
-  const gradientControls = h('span', { class: 'inline-label' }, 'Stops', stepsInput);
+  const paletteControls = h('span', { class: 'inline-label' }, t('Colors'), countInput,
+    h('button', { type: 'button', title: t('Pick the dominant colors again'), onclick: () => autoExtract(), html: iconText(ICONS.refresh, t('Auto pick')) }),
+    h('button', { type: 'button', title: t('Remove all markers'), onclick: () => { markers = []; renderOverlay(); } }, t('Clear markers')));
+  const gradientControls = h('span', { class: 'inline-label' }, t('Stops'), stepsInput);
   const toolbar = h('div', { class: 'toolbar' },
     modeSelect, paletteControls, gradientControls,
     h('span', { class: 'grow' }),
-    h('button', { type: 'button', onclick: () => fileInput.click(), html: `${ICONS.image} Change image` }));
+    h('button', { type: 'button', onclick: () => fileInput.click(), html: iconText(ICONS.image, t('Change image')) }));
 
   const hint = h('p', { class: 'hint' });
   const workArea = h('div', { class: 'image-work', hidden: true }, toolbar, stage, hint, gradientPreview, results);
@@ -86,7 +87,7 @@ export function createImageView(): View {
     if (!img) { return; }
     markers = extractPalette(img.pixels, count).map((c) => ({ x: c.x, y: c.y, hex: c.hex }));
     if (markers.length < count) {
-      toast(`The image only contains ${markers.length} distinct colors.`);
+      toast(t('The image only contains {0} distinct colors.', markers.length));
     }
     renderOverlay();
   }
@@ -96,8 +97,8 @@ export function createImageView(): View {
     gradientControls.hidden = mode !== 'gradient';
     gradientPreview.hidden = mode !== 'gradient';
     hint.textContent = mode === 'palette'
-      ? 'Drag markers to pick colors manually. Click on the image to add a marker, double-click a marker to remove it.'
-      : 'Drag the two end points to extract a gradient along the line.';
+      ? t('Drag markers to pick colors manually. Click on the image to add a marker, double-click a marker to remove it.')
+      : t('Drag the two end points to extract a gradient along the line.');
   }
 
   function renderOverlay(): void {
@@ -175,7 +176,7 @@ export function createImageView(): View {
   ): HTMLElement {
     const el = h('div', {
       class: 'pick-marker', style: `background:${hex};color:${readableTextColor(hex)}`,
-      title: onRemove ? `${hex} – drag to move, double-click to remove` : hex
+      title: onRemove ? t('{0} – drag to move, double-click to remove', hex) : hex
     }, label);
     placeAt(el, x, y);
     el.addEventListener('pointerdown', (e) => {
@@ -219,14 +220,14 @@ export function createImageView(): View {
     clear(results);
     const colors = currentColors();
     if (colors.length === 0) {
-      results.appendChild(h('p', { class: 'hint' }, 'No colors picked yet.'));
+      results.appendChild(h('p', { class: 'hint' }, t('No colors picked yet.')));
       return;
     }
     const css = toCssGradient('linear', 90, evenStops(colors), 'rgb');
     gradientPreview.style.background = css;
     const row = h('div', { class: 'result-swatches' });
     colors.forEach((hex) => row.appendChild(h('button', {
-      class: 'result-swatch', type: 'button', title: `Copy ${hex}`,
+      class: 'result-swatch', type: 'button', title: t('Copy {0}', hex),
       style: `background:${hex};color:${readableTextColor(hex)}`,
       onclick: () => store.copyColor(hex)
     }, hex)));
@@ -235,21 +236,21 @@ export function createImageView(): View {
         class: 'primary', type: 'button', onclick: () => {
           store.loadColors(colors);
           store.addToHistory(colors);
-          toast('Palette replaced with the extracted colors');
+          toast(t('Palette replaced with the extracted colors'));
         }
-      }, 'Use as palette'),
+      }, t('Use as palette')),
       h('button', {
         type: 'button', onclick: () => {
           const free = MAX_SWATCHES - store.state.swatches.length;
-          if (free <= 0) { toast('The palette is full.'); return; }
+          if (free <= 0) { toast(t('The palette is full.')); return; }
           store.loadColors([...store.colors, ...colors.slice(0, free)], store.state.name, store.state.paletteId);
         }
-      }, 'Append to palette'),
-      mode === 'gradient' ? h('button', { type: 'button', onclick: () => store.copyText(`background: ${css};`, 'CSS gradient') }, 'Copy CSS') : null,
+      }, t('Append to palette')),
+      mode === 'gradient' ? h('button', { type: 'button', onclick: () => store.copyText(`background: ${css};`, t('CSS gradient')) }, t('Copy CSS')) : null,
       mode === 'gradient' && gradientTargets.length
-        ? h('button', { type: 'button', onclick: () => gradientTargets.forEach((t) => t(colors)) }, 'Open in gradient generator')
+        ? h('button', { type: 'button', onclick: () => gradientTargets.forEach((t) => t(colors)) }, t('Open in gradient generator'))
         : null,
-      iconButton(ICONS.copy, 'Copy all colors', () => store.copyText(colors.join(', '), 'all colors')));
+      iconButton(ICONS.copy, t('Copy all colors'), () => store.copyText(colors.join(', '), t('all colors'))));
     append(results, row, actions);
   }
 
@@ -276,7 +277,7 @@ export function createImageView(): View {
   stage.addEventListener('click', (e) => {
     if (mode !== 'palette' || !getImage()) { return; }
     if (markers.length >= MAX_SWATCHES) {
-      toast(`At most ${MAX_SWATCHES} markers are supported.`);
+      toast(t('At most {0} markers are supported.', MAX_SWATCHES));
       return;
     }
     const [x, y] = toImageCoords(e);
@@ -284,7 +285,7 @@ export function createImageView(): View {
     renderOverlay();
   });
 
-  const element = h('section', { class: 'card image-view' }, h('h3', { class: 'panel-title' }, 'Extract colors from an image'),
+  const element = h('section', { class: 'card image-view' }, h('h3', { class: 'panel-title' }, t('Extract colors from an image')),
     dropZone, workArea, fileInput);
   element.addEventListener('dragover', (e) => { e.preventDefault(); element.classList.add('dragover'); });
   element.addEventListener('dragleave', () => element.classList.remove('dragover'));
@@ -301,5 +302,5 @@ export function createImageView(): View {
   });
   renderControls();
 
-  return { id: 'image', label: 'Image', element };
+  return { id: 'image', label: t('Image'), element };
 }

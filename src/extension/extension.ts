@@ -10,8 +10,8 @@ export function activate(context: vscode.ExtensionContext): void {
   const editors = new EditorTracker();
 
   const statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  statusItem.text = '$(symbol-color) Palette';
-  statusItem.tooltip = 'Open Color Palette Creator';
+  statusItem.text = `$(symbol-color) ${vscode.l10n.t('Palette')}`;
+  statusItem.tooltip = vscode.l10n.t('Open Color Palette Creator');
   statusItem.command = 'colorPaletteCreator.open';
   const updateStatusItem = (): void => {
     const show = vscode.workspace.getConfiguration('colorPaletteCreator').get<boolean>('showStatusBarItem', true);
@@ -44,7 +44,7 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     })),
     vscode.commands.registerCommand('colorPaletteCreator.exportPalette', async () => {
-      const palette = await pickPalette(store, 'Select a palette to export');
+      const palette = await pickPalette(store, vscode.l10n.t('Select a palette to export'));
       const format = palette && await pickFormat();
       if (palette && format) {
         await exportPaletteToFile(palette, format);
@@ -57,11 +57,11 @@ export function activate(context: vscode.ExtensionContext): void {
       const config = vscode.workspace.getConfiguration('colorPaletteCreator.inlineColors');
       const enabled = !config.get<boolean>('enabled', true);
       await config.update('enabled', enabled, vscode.ConfigurationTarget.Global);
-      vscode.window.showInformationMessage(`Inline color boxes ${enabled ? 'enabled' : 'disabled'}.`);
+      vscode.window.showInformationMessage(enabled ? vscode.l10n.t('Inline color boxes enabled.') : vscode.l10n.t('Inline color boxes disabled.'));
     }),
     vscode.commands.registerCommand('colorPaletteCreator.clearHistory', async () => {
       await store.clearHistory();
-      vscode.window.showInformationMessage('Color history cleared.');
+      vscode.window.showInformationMessage(vscode.l10n.t('Color history cleared.'));
     }),
     vscode.commands.registerCommand('colorPaletteCreator.insertPalette', async () => {
       await insertSavedPalette(store, editors);
@@ -83,7 +83,7 @@ const TAB_COMMANDS: Record<string, string> = {
 async function pickPalette(store: PaletteStore, placeHolder: string): Promise<Palette | undefined> {
   const palettes = store.palettes;
   if (palettes.length === 0) {
-    vscode.window.showInformationMessage('There are no saved palettes yet. Open the Color Palette Creator to create one.');
+    vscode.window.showInformationMessage(vscode.l10n.t('There are no saved palettes yet. Open the Color Palette Creator to create one.'));
     return undefined;
   }
   const picked = await vscode.window.showQuickPick(
@@ -96,15 +96,15 @@ async function pickPalette(store: PaletteStore, placeHolder: string): Promise<Pa
 async function pickFormat(): Promise<ExportFormat | undefined> {
   const defaultFormat = vscode.workspace.getConfiguration('colorPaletteCreator').get<ExportFormat>('defaultExportFormat', 'css');
   const picked = await vscode.window.showQuickPick(
-    EXPORT_FORMATS.map((f) => ({ label: f.label, description: f.id === defaultFormat ? 'default' : '', id: f.id })),
-    { placeHolder: 'Select the format' }
+    EXPORT_FORMATS.map((f) => ({ label: vscode.l10n.t(f.label), description: f.id === defaultFormat ? vscode.l10n.t('default') : '', id: f.id })),
+    { placeHolder: vscode.l10n.t('Select the format') }
   );
   return picked?.id;
 }
 
 /** Lets the user pick a saved palette and an export format and inserts the code. */
 async function insertSavedPalette(store: PaletteStore, editors: EditorTracker): Promise<void> {
-  const palette = await pickPalette(store, 'Select a palette to insert');
+  const palette = await pickPalette(store, vscode.l10n.t('Select a palette to insert'));
   const format = palette && await pickFormat();
   if (!palette || !format) {
     return;
@@ -115,7 +115,7 @@ async function insertSavedPalette(store: PaletteStore, editors: EditorTracker): 
     await editor.edit((edit) => editor.selections.forEach((s) => edit.replace(s, text)));
   } else {
     await vscode.env.clipboard.writeText(text);
-    vscode.window.showInformationMessage('No open text editor found. The palette was copied to the clipboard.');
+    vscode.window.showInformationMessage(vscode.l10n.t('No open text editor found. The palette was copied to the clipboard.'));
   }
 }
 

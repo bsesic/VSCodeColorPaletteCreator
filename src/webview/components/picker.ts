@@ -8,6 +8,7 @@ import {
 } from '../../core/color.js';
 import { ICONS, append, h, iconButton } from '../dom.js';
 import { toast } from '../toast.js';
+import { t } from '../i18n.js';
 
 export const PRESET_COLORS = [
   '#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4',
@@ -75,20 +76,20 @@ export class ColorPicker {
   }
 
   private build(): void {
-    this.area = h('div', { class: 'sv-area', tabindex: 0, 'aria-label': 'Saturation and brightness' });
+    this.area = h('div', { class: 'sv-area', tabindex: 0, 'aria-label': t('Saturation and brightness') });
     this.areaThumb = h('div', { class: 'thumb' });
     this.area.appendChild(this.areaThumb);
     this.bindArea();
 
-    this.hueSlider = h('input', { type: 'range', min: 0, max: 360, step: 1, class: 'hue-slider', 'aria-label': 'Hue' });
+    this.hueSlider = h('input', { type: 'range', min: 0, max: 360, step: 1, class: 'hue-slider', 'aria-label': t('Hue') });
     this.hueSlider.addEventListener('pointerdown', () => this.options.onStart?.());
     this.hueSlider.addEventListener('input', () => this.updateHsv({ h: Number(this.hueSlider.value) }));
     this.hueSlider.addEventListener('change', () => this.commit());
 
-    this.preview = h('div', { class: 'picker-preview', title: 'Copy color' });
+    this.preview = h('div', { class: 'picker-preview', title: t('Copy color') });
     this.preview.addEventListener('click', () => this.options.onCopy?.(this.hex, 'hex'));
 
-    const eyedropper = iconButton(ICONS.pipette, 'Pick a color from the screen', () => void this.pickFromScreen());
+    const eyedropper = iconButton(ICONS.pipette, t('Pick a color from the screen'), () => void this.pickFromScreen());
 
     const top = h('div', { class: 'picker-top' }, this.area);
     const hueRow = h('div', { class: 'picker-row' }, this.preview, h('div', { class: 'grow' }, this.hueSlider), eyedropper);
@@ -96,8 +97,8 @@ export class ColorPicker {
     const sliders = h('div', { class: 'sliders' });
     const groups: Array<[string, Array<[string, string, number]>]> = [
       ['RGB', [['r', 'R', 255], ['g', 'G', 255], ['b', 'B', 255]]],
-      ['HSL', [['hh', 'H', 360], ['hs', 'S', 100], ['hl', 'Lightness', 100]]],
-      ['HSV', [['vs', 'Saturation', 100], ['vv', 'Brightness', 100]]]
+      ['HSL', [['hh', 'H', 360], ['hs', 'S', 100], ['hl', t('Lightness'), 100]]],
+      ['HSV', [['vs', t('Saturation'), 100], ['vv', t('Brightness'), 100]]]
     ];
     for (const [group, items] of groups) {
       const fieldset = h('fieldset', { class: 'slider-group' }, h('legend', {}, group));
@@ -113,7 +114,7 @@ export class ColorPicker {
       input.addEventListener('change', () => {
         const parsed = parseColor(input.value);
         if (!parsed) {
-          toast(`"${input.value}" is not a valid color`);
+          toast(t('"{0}" is not a valid color', input.value));
           this.render();
           return;
         }
@@ -126,10 +127,10 @@ export class ColorPicker {
       append(inputs, h('label', { class: 'format-input' },
         h('span', {}, format.toUpperCase()),
         input,
-        iconButton(ICONS.copy, `Copy ${format.toUpperCase()}`, () => this.options.onCopy?.(this.hex, format))));
+        iconButton(ICONS.copy, t('Copy {0}', format.toUpperCase()), () => this.options.onCopy?.(this.hex, format))));
     }
 
-    const presets = h('div', { class: 'presets', role: 'list', 'aria-label': 'Preset colors' });
+    const presets = h('div', { class: 'presets', role: 'list', 'aria-label': t('Preset colors') });
     for (const color of PRESET_COLORS) {
       presets.appendChild(h('button', {
         class: 'preset', type: 'button', role: 'listitem', title: color, style: `background:${color}`,
@@ -142,13 +143,13 @@ export class ColorPicker {
       }));
     }
 
-    append(this.element, top, hueRow, inputs, sliders, h('div', { class: 'section-label' }, 'Swatches'), presets);
+    append(this.element, top, hueRow, inputs, sliders, h('div', { class: 'section-label' }, t('Swatches')), presets);
     this.render();
   }
 
   private createSlider(key: string, label: string, max: number): HTMLElement {
     const input = h('input', { type: 'range', min: 0, max, step: 1, 'aria-label': label });
-    const value = h('input', { type: 'number', min: 0, max, step: 1, class: 'slider-value', 'aria-label': `${label} value` });
+    const value = h('input', { type: 'number', min: 0, max, step: 1, class: 'slider-value', 'aria-label': t('{0} value', label) });
     const track = h('div', { class: 'slider-track' }, input);
     const apply = (raw: string): void => this.applySlider(key, clamp(Number(raw) || 0, 0, max));
     input.addEventListener('pointerdown', () => this.options.onStart?.());
@@ -242,7 +243,7 @@ export class ColorPicker {
   private async pickFromScreen(): Promise<void> {
     const EyeDropper = (window as unknown as { EyeDropper?: EyeDropperCtor }).EyeDropper;
     if (!EyeDropper) {
-      toast('The eyedropper is not supported in this environment.');
+      toast(t('The eyedropper is not supported in this environment.'));
       return;
     }
     try {
@@ -281,7 +282,7 @@ export class ColorPicker {
       g: [rgb.g, `linear-gradient(to right, ${rgbCss(rgb.r, 0, rgb.b)}, ${rgbCss(rgb.r, 255, rgb.b)})`],
       b: [rgb.b, `linear-gradient(to right, ${rgbCss(rgb.r, rgb.g, 0)}, ${rgbCss(rgb.r, rgb.g, 255)})`],
       hh: [hue, 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)'],
-      hs: [hsl.s, hslStops((t) => `hsl(${hue}, ${t * 100}%, ${hsl.l}%)`)],
+      hs: [hsl.s, hslStops((x) => `hsl(${hue}, ${x * 100}%, ${hsl.l}%)`)],
       hl: [hsl.l, `linear-gradient(to right, #000, hsl(${hue}, ${hsl.s}%, 50%), #fff)`],
       vs: [s, `linear-gradient(to right, ${hsvToHex({ h: hue, s: 0, v })}, ${hsvToHex({ h: hue, s: 100, v })})`],
       vv: [v, `linear-gradient(to right, #000, ${hsvToHex({ h: hue, s, v: 100 })})`]
