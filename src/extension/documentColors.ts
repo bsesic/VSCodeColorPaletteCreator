@@ -67,7 +67,8 @@ export class DocumentColorSync implements vscode.Disposable {
     const tooLarge = text.length > MAX_SCAN_LENGTH;
     const result: DocumentColors = {
       uri: doc.uri.toString(),
-      fileName: vscode.workspace.asRelativePath(doc.uri),
+      fileName: displayName(doc.uri),
+      path: doc.uri.scheme === 'file' ? doc.uri.fsPath : doc.uri.toString(),
       languageId: doc.languageId,
       groups: tooLarge ? [] : groupColors(text, findColors(text)),
       tooLarge,
@@ -157,4 +158,12 @@ export class DocumentColorSync implements vscode.Disposable {
     clearTimeout(this.flashTimer);
     this.disposables.forEach((d) => d.dispose());
   }
+}
+
+/** Workspace relative path, or just the file name when the file is outside all workspace folders. */
+function displayName(uri: vscode.Uri): string {
+  if (vscode.workspace.getWorkspaceFolder(uri)) {
+    return vscode.workspace.asRelativePath(uri, false);
+  }
+  return uri.path.split('/').pop() ?? uri.toString();
 }

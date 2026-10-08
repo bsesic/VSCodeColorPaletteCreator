@@ -119,7 +119,10 @@ export function createSwatchStrip(): HTMLElement {
       const fg = readableTextColor(swatch.hex);
       part.root.style.background = swatch.hex;
       part.root.style.color = fg;
-      part.hex.textContent = formatColor(swatch.hex, state.copyFormat);
+      const label = formatColor(swatch.hex, state.copyFormat);
+      part.hex.textContent = label;
+      part.hex.title = `Copy ${label}`;
+      part.hex.classList.toggle('long', label.length > 9);
       part.name.textContent = describeColor(swatch.hex);
       part.root.setAttribute('aria-label', `${swatch.hex} ${describeColor(swatch.hex)}`);
     });

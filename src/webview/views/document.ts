@@ -170,6 +170,7 @@ export function createDocumentView(): View {
       return;
     }
     title.textContent = doc.fileName;
+    title.title = doc.path;
     autoSave.checked = doc.autoSave;
     info.textContent = doc.tooLarge
       ? 'This file is too large to be scanned.'
