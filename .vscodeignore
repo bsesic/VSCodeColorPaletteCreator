@@ -6,5 +6,4 @@ out/extension/test/**
 **/*.map
 tsconfig*.json
 .eslintrc.json
-.flake8
 .mocharc.json

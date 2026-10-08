@@ -1,3 +1,0 @@
-[flake8]
-max-line-length = 100
-exclude = .git,node_modules,out,media/out,.vscode-test

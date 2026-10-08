@@ -71,7 +71,7 @@
     "clean": "node -e \"const fs=require('fs');fs.rmSync('out',{recursive:true,force:true});fs.rmSync('media/out',{recursive:true,force:true})\"",
     "compile": "npm run clean && tsc -p tsconfig.json && tsc -p tsconfig.webview.json",
     "watch": "tsc -p tsconfig.json -w",
-    "lint": "eslint src test --ext ts && flake8 .",
+    "lint": "eslint src test --ext ts",
     "test": "npm run compile && mocha",
     "vscode:prepublish": "npm run compile",
     "precommit": "npm run lint && npm test"
