@@ -1,27 +1,153 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1F2A44"/>
-      <stop offset="1" stop-color="#121826"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg39"
+   sodipodi:docname="icon.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview41"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="3.7617188"
+     inkscape:cx="71.509865"
+     inkscape:cy="128.26584"
+     inkscape:window-width="1920"
+     inkscape:window-height="1144"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg39" />
+  <defs
+     id="defs7">
+    <linearGradient
+       id="bg"
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="1">
+      <stop
+         offset="0"
+         stop-color="#1F2A44"
+         id="stop2" />
+      <stop
+         offset="1"
+         stop-color="#121826"
+         id="stop4" />
     </linearGradient>
   </defs>
-  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)"/>
+  <rect
+     x="8"
+     y="8"
+     width="240"
+     height="240"
+     rx="52"
+     fill="url(#bg)"
+     id="rect9" />
   <!-- Palette swatch strip -->
-  <g transform="translate(40 52)">
-    <rect width="176" height="92" rx="18" fill="#FFFFFF" opacity="0.08"/>
-    <rect x="8" y="8" width="32" height="76" rx="9" fill="#4D96D9"/>
-    <rect x="40" y="8" width="32" height="76" fill="#2A9D8F"/>
-    <rect x="72" y="8" width="32" height="76" fill="#E9C46A"/>
-    <rect x="104" y="8" width="32" height="76" fill="#F4A261"/>
-    <rect x="136" y="8" width="32" height="76" rx="9" fill="#E76F51"/>
-    <rect x="40" y="8" width="8" height="76" fill="#4D96D9"/>
-    <rect x="128" y="8" width="8" height="76" fill="#F4A261"/>
+  <g
+     transform="translate(40 52)"
+     id="g27">
+    <rect
+       width="176"
+       height="92"
+       rx="18"
+       fill="#FFFFFF"
+       opacity="0.08"
+       id="rect11" />
+    <rect
+       x="8"
+       y="8"
+       width="32"
+       height="76"
+       rx="9"
+       fill="#4D96D9"
+       id="rect13" />
+    <rect
+       x="20.826584"
+       y="8"
+       width="32"
+       height="76"
+       rx="0"
+       fill="#4d96d9"
+       id="rect13-3" />
+    <rect
+       x="40"
+       y="8"
+       width="32"
+       height="76"
+       fill="#2a9d8f"
+       id="rect15"
+       ry="0" />
+    <rect
+       x="72"
+       y="8"
+       width="32"
+       height="76"
+       fill="#e9c46a"
+       id="rect17"
+       ry="0" />
+    <rect
+       x="126.62928"
+       y="8"
+       width="32"
+       height="76"
+       rx="0"
+       fill="#e76f51"
+       id="rect21-6" />
+    <rect
+       x="102"
+       y="8"
+       width="32"
+       height="76"
+       fill="#f4a261"
+       id="rect19"
+       ry="0" />
+    <rect
+       x="136"
+       y="8"
+       width="32"
+       height="76"
+       rx="9"
+       fill="#E76F51"
+       id="rect21" />
   </g>
   <!-- Code brackets with inline color box -->
-  <g fill="none" stroke="#E6EDF3" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M78 168 L56 190 L78 212"/>
-    <path d="M178 168 L200 190 L178 212"/>
+  <g
+     fill="none"
+     stroke="#E6EDF3"
+     stroke-width="12"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g33">
+    <path
+       d="M78 168 L56 190 L78 212"
+       id="path29" />
+    <path
+       d="M178 168 L200 190 L178 212"
+       id="path31" />
   </g>
-  <rect x="104" y="172" width="36" height="36" rx="8" fill="#2A9D8F" stroke="#E6EDF3" stroke-width="5"/>
-  <rect x="146" y="186" width="18" height="8" rx="4" fill="#E6EDF3" opacity="0.7"/>
+  <rect
+     x="-146"
+     y="-207.2025"
+     width="36"
+     height="36"
+     rx="8"
+     fill="#2a9d8f"
+     stroke="#e6edf3"
+     stroke-width="5"
+     id="rect35"
+     transform="scale(-1)" />
 </svg>
