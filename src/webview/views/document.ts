@@ -7,7 +7,7 @@ import { DocumentColors } from '../../core/messages.js';
 import { ColorGroup, colorKey } from '../../core/scan.js';
 import { onHostMessage, post } from '../api.js';
 import { ColorPicker } from '../components/picker.js';
-import { ICONS, append, clear, h, iconButton } from '../dom.js';
+import { ICONS, append, clear, h, iconButton, select as selectBox } from '../dom.js';
 import { MAX_SWATCHES, store } from '../store.js';
 import { toast } from '../toast.js';
 import { View } from './view.js';
@@ -141,22 +141,19 @@ export function createDocumentView(): View {
     detailTitle.textContent = `${groupLabel(group)} · ${group.count} occurrence(s)`;
     clear(detailMeta);
     occurrence = Math.min(occurrence, group.count - 1);
+    const occurrences = selectBox(
+      group.lines.map((line, i) => ({
+        id: String(i),
+        label: `${i + 1} / ${group.count} · Line ${line + 1}${group.occurrenceNames[i] ? ` · ${group.occurrenceNames[i]}` : ''}`
+      })),
+      String(occurrence),
+      (value) => reveal(group, Number(value)),
+      'Go to occurrence');
+    occurrences.classList.add('grow');
     detailMeta.appendChild(h('div', { class: 'doc-nav' },
       iconButton(ICONS.chevronLeft, 'Previous occurrence', () => reveal(group, occurrence - 1)),
-      h('span', { class: 'doc-nav-label' }, `${occurrence + 1} / ${group.count} · Line ${group.lines[occurrence] + 1}`),
+      occurrences,
       iconButton(ICONS.chevronRight, 'Next occurrence (or click the swatch again)', () => reveal(group, occurrence + 1))));
-    if (group.names.length) {
-      detailMeta.appendChild(h('div', { class: 'doc-names' }, ...group.names.map((n) => h('code', {}, n))));
-    }
-    const lines = h('div', { class: 'doc-lines' });
-    group.lines.slice(0, 40).forEach((line, i) => lines.appendChild(h('button', {
-      type: 'button', class: `link-btn${i === occurrence ? ' current' : ''}`, title: 'Go to this occurrence',
-      onclick: () => reveal(group, i)
-    }, `Line ${line + 1}`)));
-    if (group.lines.length > 40) {
-      lines.appendChild(h('span', { class: 'hint' }, `+${group.lines.length - 40} more`));
-    }
-    append(detailMeta, lines);
     clear(paletteChips);
     store.colors.forEach((hex) => paletteChips.appendChild(h('button', {
       class: 'chip', type: 'button', title: `Replace with ${hex}`, style: `background:${hex}`,

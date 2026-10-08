@@ -477,13 +477,7 @@ input[type="color"] { width: 34px; height: 26px; padding: 0; border: 1px solid v
 .doc-tile-text strong { font-family: var(--vscode-editor-font-family); font-size: 0.9em; }
 .doc-tile-text small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .doc-meta { display: grid; gap: 8px; margin-bottom: 10px; }
-.doc-names { display: flex; flex-wrap: wrap; gap: 4px; }
-.doc-names code { font-size: 0.85em; padding: 1px 5px; border-radius: 3px; background: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.15)); }
-.doc-lines { display: flex; flex-wrap: wrap; gap: 2px 8px; max-height: 84px; overflow-y: auto; }
-.link-btn { background: transparent; color: var(--vscode-textLink-foreground); padding: 0; border: none; }
-.link-btn:hover { background: transparent; text-decoration: underline; }
 .picker.compact .sv-area { height: 140px; }
 
 .doc-nav { display: flex; align-items: center; gap: 6px; }
-.doc-nav-label { font-variant-numeric: tabular-nums; }
-.link-btn.current { font-weight: 700; text-decoration: underline; }
+.doc-nav select { min-width: 0; font-variant-numeric: tabular-nums; }
