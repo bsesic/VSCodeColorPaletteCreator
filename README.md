@@ -9,9 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator"><img src="https://img.shields.io/visual-studio-marketplace/v/bsesic.vscode-color-palette-creator?label=Marketplace&color=2A9D8F" alt="Marketplace version"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator"><img src="https://img.shields.io/visual-studio-marketplace/i/bsesic.vscode-color-palette-creator?color=E9C46A" alt="Installs"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator&ssr=false#review-details"><img src="https://img.shields.io/visual-studio-marketplace/r/bsesic.vscode-color-palette-creator?color=F4A261" alt="Rating"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator"><img src="https://badgen.net/vs-marketplace/v/bsesic.vscode-color-palette-creator?label=Marketplace&color=2A9D8F" alt="Marketplace version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator&ssr=false#review-details"><img src="https://vsmarketplacebadges.dev/rating-short/bsesic.vscode-color-palette-creator.svg?color=F4A261" alt="Rating"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/bsesic/VSCodeColorPaletteCreator?color=E76F51" alt="License"></a>
 </p>
 
