@@ -5,6 +5,7 @@
  */
 import { clamp, hexToHsv, hsvToRgb, wrapHue } from '../../core/color.js';
 import { h } from '../dom.js';
+import { t } from '../i18n.js';
 
 export interface WheelOptions {
   onDragStart?: (index: number) => void;
@@ -31,7 +32,7 @@ export class ColorWheel {
     this.wheel = h('canvas', { width: SIZE * ratio, height: SIZE * ratio, class: 'wheel-canvas' });
     this.overlay = h('canvas', {
       width: SIZE * ratio, height: SIZE * ratio, class: 'wheel-overlay', tabindex: 0,
-      role: 'img', 'aria-label': 'Color wheel with palette markers'
+      role: 'img', 'aria-label': t('Color wheel with palette markers')
     });
     this.element = h('div', { class: 'wheel', style: `width:${SIZE}px;height:${SIZE}px` }, this.wheel, this.overlay);
     this.bind();

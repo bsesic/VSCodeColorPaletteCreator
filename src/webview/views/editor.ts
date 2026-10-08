@@ -2,13 +2,14 @@
  * Editor tab: color wheel with harmony generation and the color picker for
  * the selected swatch.
  */
-import { clamp, describeColor, hexToHsv, hsvToHex } from '../../core/color.js';
+import { clamp, hexToHsv, hsvToHex } from '../../core/color.js';
 import { HARMONY_MODES, HarmonyMode } from '../../core/harmony.js';
 import { ColorPicker } from '../components/picker.js';
 import { ColorWheel } from '../components/wheel.js';
-import { ICONS, append, h, select } from '../dom.js';
+import { ICONS, append, h, iconText, select } from '../dom.js';
 import { AppState, store } from '../store.js';
 import { View } from './view.js';
+import { colorName, t } from '../i18n.js';
 
 export function createEditorView(): View {
   let dragOffset = 0;
@@ -37,11 +38,12 @@ export function createEditorView(): View {
     onDragEnd: (index) => store.addToHistory([store.state.swatches[index].hex])
   });
 
-  const harmonySelect = select(HARMONY_MODES, store.state.harmony, (mode: HarmonyMode) => store.setHarmony(mode), 'Color harmony');
-  const generateButton = h('button', { class: 'primary', type: 'button', title: 'Generate (Space)', html: `${ICONS.refresh} Generate` });
+  const harmonySelect = select(HARMONY_MODES.map((m) => ({ id: m.id, label: t(m.label) })), store.state.harmony,
+    (mode: HarmonyMode) => store.setHarmony(mode), t('Color harmony'));
+  const generateButton = h('button', { class: 'primary', type: 'button', title: t('Generate (Space)'), html: iconText(ICONS.refresh, t('Generate')) });
   generateButton.addEventListener('click', () => store.generate());
 
-  const brightness = h('input', { type: 'range', min: 0, max: 100, step: 1, class: 'grow', 'aria-label': 'Brightness' });
+  const brightness = h('input', { type: 'range', min: 0, max: 100, step: 1, class: 'grow', 'aria-label': t('Brightness') });
   const brightnessTarget = (): number => (usesHarmony() ? store.state.baseIndex : store.state.selected);
   brightness.addEventListener('pointerdown', () => store.checkpoint());
   brightness.addEventListener('input', () => {
@@ -59,13 +61,12 @@ export function createEditorView(): View {
   const pickerTitle = h('h3', { class: 'panel-title' });
 
   const wheelColumn = h('section', { class: 'card wheel-card' },
-    h('h3', { class: 'panel-title' }, 'Color wheel'),
-    h('div', { class: 'toolbar' }, h('label', { class: 'inline-label' }, 'Harmony', harmonySelect), generateButton),
+    h('h3', { class: 'panel-title' }, t('Color wheel')),
+    h('div', { class: 'toolbar' }, h('label', { class: 'inline-label' }, t('Harmony'), harmonySelect), generateButton),
     wheel.element,
-    h('label', { class: 'slider-row' }, h('span', {}, 'Brightness'), brightness),
+    h('label', { class: 'slider-row' }, h('span', {}, t('Brightness')), brightness),
     h('p', { class: 'hint' },
-      'Drag the markers to change colors. With a harmony selected, all markers move together around the base color (★). ',
-      'Locked swatches are kept when generating.'));
+      t('Drag the markers to change colors. With a harmony selected, all markers move together around the base color (★). Locked swatches are kept when generating.')));
   const pickerColumn = h('section', { class: 'card' }, pickerTitle, picker.element);
   const element = h('div', { class: 'editor-view' });
   append(element, wheelColumn, pickerColumn);
@@ -81,10 +82,12 @@ export function createEditorView(): View {
     }
     harmonySelect.value = state.harmony;
     picker.setColor(selectedHex);
-    pickerTitle.textContent = `Color ${state.selected + 1}${state.selected === state.baseIndex ? ' (base)' : ''} · ${describeColor(selectedHex)}`;
+    pickerTitle.textContent = `${state.selected === state.baseIndex
+      ? t('Color {0} (base)', state.selected + 1)
+      : t('Color {0}', state.selected + 1)} · ${colorName(selectedHex)}`;
   };
   store.subscribe(render);
   render(store.state);
 
-  return { id: 'editor', label: 'Editor', element };
+  return { id: 'editor', label: t('Editor'), element };
 }

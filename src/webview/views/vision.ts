@@ -7,6 +7,7 @@ import { clear, h, select } from '../dom.js';
 import { getImage, onImageLoaded } from '../imageState.js';
 import { store } from '../store.js';
 import { View } from './view.js';
+import { t } from '../i18n.js';
 
 /** Colors closer than this (OKLab distance) are hard to tell apart. */
 const CONFUSION_THRESHOLD = 0.06;
@@ -35,8 +36,8 @@ export function createVisionView(): View {
         class: 'result-swatch', style: `background:${hex};color:${readableTextColor(hex)}`, title: `${colors[i]} → ${hex}`
       }, String(i + 1))));
       rows.appendChild(h('div', { class: 'vision-row' },
-        h('div', { class: 'vision-label' }, h('strong', {}, type.label), h('small', {}, type.description),
-          conflicts.length ? h('small', { class: 'warning' }, `⚠ Hard to distinguish: ${conflicts.join(', ')}`) : null),
+        h('div', { class: 'vision-label' }, h('strong', {}, t(type.label)), h('small', {}, t(type.description)),
+          conflicts.length ? h('small', { class: 'warning' }, `⚠ ${t('Hard to distinguish: {0}', conflicts.join(', '))}`) : null),
         strip));
     }
   }
@@ -45,7 +46,7 @@ export function createVisionView(): View {
     clear(imageArea);
     const img = getImage();
     if (!img) {
-      imageArea.appendChild(h('p', { class: 'hint' }, 'Load an image in the Image tab to simulate it here.'));
+      imageArea.appendChild(h('p', { class: 'hint' }, t('Load an image in the Image tab to simulate it here.')));
       return;
     }
     const { width, height } = img.pixels;
@@ -60,11 +61,11 @@ export function createVisionView(): View {
     original.getContext('2d')?.drawImage(img.canvas, 0, 0);
     original.className = 'vision-canvas';
     imageArea.append(
-      h('figure', {}, original, h('figcaption', {}, 'Original')),
-      h('figure', {}, canvas, h('figcaption', {}, VISION_TYPES.find((t) => t.id === imageType)?.label ?? '')));
+      h('figure', {}, original, h('figcaption', {}, t('Original'))),
+      h('figure', {}, canvas, h('figcaption', {}, t(VISION_TYPES.find((v) => v.id === imageType)?.label ?? ''))));
   }
 
-  const typeSelect = select(VISION_TYPES.filter((t) => t.id !== 'normal'), imageType, (t) => { imageType = t; renderImage(); }, 'Vision type');
+  const typeSelect = select(VISION_TYPES.filter((v) => v.id !== 'normal').map((v) => ({ id: v.id, label: t(v.label) })), imageType, (t) => { imageType = t; renderImage(); }, t('Vision type'));
   let lastColors = '';
   store.subscribe(() => {
     const key = store.colors.join();
@@ -76,14 +77,14 @@ export function createVisionView(): View {
   onImageLoaded(() => { if (visible) { renderImage(); } });
 
   const element = h('div', { class: 'vision-view' },
-    h('section', { class: 'card' }, h('h3', { class: 'panel-title' }, 'Color blindness simulator'),
-      h('p', { class: 'hint' }, 'How the palette appears with different color vision deficiencies (Machado et al. 2009).'),
+    h('section', { class: 'card' }, h('h3', { class: 'panel-title' }, t('Color blindness simulator')),
+      h('p', { class: 'hint' }, t('How the palette appears with different color vision deficiencies (Machado et al. 2009).')),
       rows),
     h('section', { class: 'card' },
-      h('div', { class: 'toolbar' }, h('h3', { class: 'panel-title grow' }, 'Image simulation'), typeSelect),
+      h('div', { class: 'toolbar' }, h('h3', { class: 'panel-title grow' }, t('Image simulation')), typeSelect),
       imageArea));
   return {
-    id: 'vision', label: 'Color Blindness', element,
+    id: 'vision', label: t('Color Blindness'), element,
     onShow: () => {
       visible = true;
       lastColors = store.colors.join();

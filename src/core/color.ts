@@ -266,13 +266,20 @@ const NAMED_HUES: Array<[number, string]> = [
   [255, 'Blue'], [290, 'Violet'], [335, 'Magenta'], [360, 'Red']
 ];
 
-/** Rough human readable name, e.g. "Dark Blue" or "Light Gray". Useful for variable names. */
-export function describeColor(hex: string): string {
+export type ColorTone = 'dark' | 'light' | '';
+
+/** Tone and base name of a color, e.g. { tone: 'dark', hue: 'Blue' }. Base names are English. */
+export function describeColorParts(hex: string): { tone: ColorTone; hue: string } {
   const { h, s, l } = hexToHsl(hex);
-  if (l < 6) { return 'Black'; }
-  if (l > 96) { return 'White'; }
-  const tone = l < 30 ? 'Dark ' : l > 72 ? 'Light ' : '';
-  if (s < 10) { return `${tone}Gray`; }
-  const hue = NAMED_HUES.find(([limit]) => h < limit)?.[1] ?? 'Red';
-  return `${tone}${hue}`;
+  if (l < 6) { return { tone: '', hue: 'Black' }; }
+  if (l > 96) { return { tone: '', hue: 'White' }; }
+  const tone: ColorTone = l < 30 ? 'dark' : l > 72 ? 'light' : '';
+  if (s < 10) { return { tone, hue: 'Gray' }; }
+  return { tone, hue: NAMED_HUES.find(([limit]) => h < limit)?.[1] ?? 'Red' };
+}
+
+/** Rough English name, e.g. "Dark Blue" or "Light Gray". Used in exported files. */
+export function describeColor(hex: string): string {
+  const { tone, hue } = describeColorParts(hex);
+  return `${tone === 'dark' ? 'Dark ' : tone === 'light' ? 'Light ' : ''}${hue}`;
 }

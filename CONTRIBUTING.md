@@ -27,6 +27,7 @@ Press `F5` in VS Code to start an Extension Development Host with the extension 
 | `npm run lint` | Run ESLint |
 | `npm test` | Compile and run the unit tests (mocha) |
 | `npm run icon` | Render `images/icon.svg` to `images/icon.png` |
+| `npm run l10n` | Update the English localization template `l10n/bundle.l10n.json` |
 | `npm run package` | Create the `.vsix` package |
 
 The pre-commit hook in `.githooks/` runs ESLint and the unit tests before every commit and switches to the
@@ -44,6 +45,28 @@ Node.js version from `.nvmrc` via nvm automatically.
 | `scripts/` | Build helper scripts |
 
 New color logic belongs in `src/core/` and should come with unit tests.
+
+## Localization
+
+The extension follows the VS Code display language. All user-visible texts are English in the code and are
+translated via bundles:
+
+| File | Content |
+| --- | --- |
+| `package.nls.json`, `package.nls.<lang>.json` | Commands, settings and the description (`%key%` in `package.json`) |
+| `l10n/bundle.l10n.json` | English template of all texts of the extension host and the webview (generated) |
+| `l10n/bundle.l10n.<lang>.json` | Translations, keyed by the English text |
+
+Supported languages: `de`, `fr`, `es`, `it`, `pt-br`, `ja`, `ko`, `zh-cn`, `zh-tw`, `ru`, `pl`, `cs`, `tr`.
+
+When you add or change a text:
+
+1. Wrap it in `t('…')` in the webview (`src/webview/i18n.ts`) or `vscode.l10n.t('…')` in the extension host.
+   Use placeholders for values: `t('Copied {0}', text)`. Never build sentences from fragments.
+2. Run `npm run l10n` to update `l10n/bundle.l10n.json`.
+3. Add the translation to every `l10n/bundle.l10n.<lang>.json`.
+
+`npm test` fails if the template is outdated or a language misses a text or uses different placeholders.
 
 ## Workflow
 
