@@ -147,7 +147,18 @@ select { background: var(--vscode-dropdown-background); color: var(--vscode-drop
   text-overflow: ellipsis;
   justify-content: center;
 }
-.swatch-hex.long { font-size: 0.78em; }
+/* Scale the label with the swatch width so codes fit without truncation. */
+.swatch { container-type: inline-size; }
+.swatch-hex { font-size: clamp(9px, 15cqw, 0.95em); padding: 2px; }
+.swatch-hex.long {
+  font-size: clamp(8px, 8.5cqw, 0.78em);
+  /* Long notations may wrap between values, never inside a number. */
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  text-overflow: clip;
+  line-height: 1.25;
+}
 .swatch-hex:hover { background: rgba(127, 127, 127, 0.25); }
 .swatch-name { font-size: 0.8em; opacity: 0.8; }
 .base-badge, .lock-badge { position: absolute; top: 4px; line-height: 0; opacity: 0.85; }
