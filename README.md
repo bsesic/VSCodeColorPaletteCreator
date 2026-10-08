@@ -1,0 +1,2 @@
+# VSCodeColorPaletteCreator
+ColorPaletteCreator for VSCode
