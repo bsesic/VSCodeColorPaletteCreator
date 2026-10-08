@@ -17,6 +17,7 @@ import { createLibraryView, saveImage } from './views/library.js';
 import { createVisionView } from './views/vision.js';
 import { createSwatchStrip } from './views/swatches.js';
 import { View } from './views/view.js';
+import { loadImage } from './imageState.js';
 import { toast } from './toast.js';
 
 const views: View[] = [
@@ -150,6 +151,12 @@ function main(): void {
       case 'paletteSaved':
         store.set({ paletteId: msg.palette.id, name: msg.palette.name });
         toast(`Saved "${msg.palette.name}"`);
+        break;
+      case 'loadImage':
+        loadImage(msg.dataUrl, msg.name).catch((err: Error) => toast(err.message));
+        break;
+      case 'showTab':
+        window.dispatchEvent(new CustomEvent('cpc:show-tab', { detail: msg.tab }));
         break;
       case 'paletteRenamed':
         if (store.state.paletteId === msg.id) {

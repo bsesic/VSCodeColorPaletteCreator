@@ -61,4 +61,6 @@ export type HostMessage =
   | { type: 'paletteSaved'; palette: Palette }
   | { type: 'paletteImported'; palette: Palette }
   | { type: 'paletteRenamed'; id: string; name: string }
-  | { type: 'document:colors'; document: DocumentColors | undefined };
+  | { type: 'document:colors'; document: DocumentColors | undefined }
+  | { type: 'showTab'; tab: string }
+  | { type: 'loadImage'; name: string; dataUrl: string };
