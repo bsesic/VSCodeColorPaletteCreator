@@ -9,12 +9,17 @@ import { ICONS, append, h, iconButton, select } from './dom.js';
 import { store } from './store.js';
 import { createEditorView } from './views/editor.js';
 import { createHistoryView } from './views/history.js';
+import { createContrastView } from './views/contrast.js';
+import { createGradientView } from './views/gradient.js';
 import { createImageView } from './views/image.js';
+import { createVisionView } from './views/vision.js';
 import { createSwatchStrip } from './views/swatches.js';
 import { View } from './views/view.js';
 import { toast } from './toast.js';
 
-const views: View[] = [createEditorView(), createImageView(), createHistoryView()];
+const views: View[] = [
+  createEditorView(), createImageView(), createGradientView(), createContrastView(), createVisionView(), createHistoryView()
+];
 
 function createHeader(): HTMLElement {
   const nameInput = h('input', { class: 'palette-name', type: 'text', 'aria-label': 'Palette name', spellcheck: 'false' });
@@ -66,6 +71,7 @@ function createTabs(): HTMLElement {
     panels.appendChild(view.element);
   });
   show(views[0].id);
+  window.addEventListener('cpc:show-tab', (e) => show((e as CustomEvent<string>).detail));
   return h('div', {}, tabList, panels);
 }
 
