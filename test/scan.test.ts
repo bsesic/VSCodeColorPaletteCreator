@@ -111,6 +111,7 @@ describe('document colors', () => {
       ['#212529', 1, ['--bs-dark'], [5]]
     ]);
     assert.deepStrictEqual(groups[0].formats, ['hex', 'rgb-triplet']);
+    assert.deepStrictEqual(groups[0].occurrenceNames, ['--bs-primary', '--bs-primary-rgb', '--bs-link']);
     assert.deepStrictEqual(groups[0].ranges.map(([s, e]) => css.slice(s, e)), ['#0d6efd', '13, 110, 253', '#0D6EFD']);
   });
 
