@@ -16,6 +16,7 @@
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/bsesic"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
+  <a href="https://github.com/sponsors/bsesic"><img src="https://img.shields.io/badge/GitHub_Sponsors-Sponsor-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" height="48"></a>
 </p>
 
 ![Color Palette Creator: palette editor with color wheel and color picker](images/screenshots/editor.png)
@@ -171,9 +172,7 @@ Inside the panel: `Space` generates a new palette, `Ctrl+Z` / `Ctrl+Y` undo and 
 Color Palette Creator is free and open source. If it saves you time, you can support its development:
 
 <a href="https://www.buymeacoffee.com/bsesic"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
-<!-- Enable once the GitHub Sponsors profile is approved:
 <a href="https://github.com/sponsors/bsesic"><img src="https://img.shields.io/badge/GitHub_Sponsors-Sponsor-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" height="48"></a>
--->
 
 ### 🪙 Crypto
 
