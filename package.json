@@ -2,7 +2,7 @@
   "name": "vscode-color-palette-creator",
   "displayName": "Color Palette Creator",
   "description": "%description%",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "bsesic",
   "license": "MIT",
   "icon": "images/icon.png",
