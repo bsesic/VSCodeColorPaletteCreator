@@ -171,6 +171,43 @@ Inside the panel: `Space` generates a new palette, `Ctrl+Z` / `Ctrl+Y` undo and 
 Color Palette Creator is free and open source. If it saves you time, you can support its development:
 
 <a href="https://www.buymeacoffee.com/bsesic"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48"></a>
+<!-- Enable once the GitHub Sponsors profile is approved:
+<a href="https://github.com/sponsors/bsesic"><img src="https://img.shields.io/badge/GitHub_Sponsors-Sponsor-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" height="48"></a>
+-->
+
+### 🪙 Crypto
+
+Prefer crypto? Donations are welcome at these addresses:
+
+<img src="https://img.shields.io/badge/Bitcoin-BTC-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Bitcoin">
+
+```text
+3C4bVHFd4djqVGSdEiixDLb2JLrXxtLn8E
+```
+
+<img src="https://img.shields.io/badge/Ethereum-ETH-3C3C3D?style=for-the-badge&logo=ethereum&logoColor=white" alt="Ethereum">
+
+```text
+0x4fF1438dfff475fAB092B9Df05b80C7f0De8eae1
+```
+
+<img src="https://img.shields.io/badge/Litecoin-LTC-345D9D?style=for-the-badge&logo=litecoin&logoColor=white" alt="Litecoin">
+
+```text
+MGNx1tZKMi6wamnW6bKALZTuei7sGkhe3m
+```
+
+<img src="https://img.shields.io/badge/Solana-SOL-9945FF?style=for-the-badge&logo=solana&logoColor=white" alt="Solana">
+
+```text
+DAfwox4hQ7dFB4t914ckMbEiqFYWgHpTwTVyGiy4eo7D
+```
+
+<img src="https://img.shields.io/badge/Monero-XMR-FF6600?style=for-the-badge&logo=monero&logoColor=white" alt="Monero">
+
+```text
+429QtMeViydLdK3NZvpWx4P18g3U969pW5Q2eBU2umMqUKbksPsLBwU3DxtbJ4GaXMh7nYJcf5F2m2egLjJUyWSzLZ1hBcH
+```
 
 A ⭐ on [GitHub](https://github.com/bsesic/VSCodeColorPaletteCreator) or a review on the
 [Marketplace](https://marketplace.visualstudio.com/items?itemName=bsesic.vscode-color-palette-creator&ssr=false#review-details)
