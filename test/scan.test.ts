@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { colorKey, findColors, formatLike, presentations } from '../src/core/scan.js';
+import { colorKey, findColors, formatLike, groupColors, planReplacement, presentations } from '../src/core/scan.js';
 
 const one = (text: string) => {
   const found = findColors(text);
@@ -66,6 +66,7 @@ describe('formatLike', () => {
   it('keeps hex style', () => {
     assert.strictEqual(formatLike({ format: 'hex', text: '#abcdef' }, red), '#ff0000');
     assert.strictEqual(formatLike({ format: 'hex', text: '#ABCDEF' }, red), '#FF0000');
+    assert.strictEqual(formatLike({ format: 'hex', text: '#000000' }, red), '#ff0000');
     assert.strictEqual(formatLike({ format: 'hex', text: '#abc' }, red), '#f00');
     assert.strictEqual(formatLike({ format: 'hex', text: '#abc' }, { r: 18, g: 52, b: 86, a: 1 }), '#123456');
     assert.strictEqual(formatLike({ format: 'hex', text: '#abcdef' }, half), '#ff000080');
@@ -88,5 +89,51 @@ describe('formatLike', () => {
   it('offers alternative presentations with the original first', () => {
     const list = presentations({ format: 'hsl', text: 'hsl(0, 0%, 0%)' }, red);
     assert.deepStrictEqual(list, ['hsl(0, 100%, 50%)', '#FF0000', 'rgb(255, 0, 0)', 'hsv(0, 100%, 100%)']);
+  });
+});
+
+describe('document colors', () => {
+  const css = [
+    ':root {',
+    '  --bs-primary: #0d6efd;',
+    '  --bs-primary-rgb: 13, 110, 253;',
+    '  --bs-link: #0D6EFD;',
+    '  --shadow: rgba(13, 110, 253, .25);',
+    '  --bs-dark: #212529;',
+    '}'
+  ].join('\n');
+
+  it('groups colors with names and lines', () => {
+    const groups = groupColors(css, findColors(css));
+    assert.deepStrictEqual(groups.map((g) => [g.key, g.count, g.names, g.lines]), [
+      ['#0D6EFD', 3, ['--bs-primary', '--bs-primary-rgb', '--bs-link'], [1, 2, 3]],
+      ['#0D6EFD40', 1, ['--shadow'], [4]],
+      ['#212529', 1, ['--bs-dark'], [5]]
+    ]);
+    assert.deepStrictEqual(groups[0].formats, ['hex', 'rgb-triplet']);
+  });
+
+  it('plans replacements keeping notation and alpha', () => {
+    const { edits, newKey } = planReplacement(css, '#0D6EFD', { r: 255, g: 0, b: 0 });
+    assert.strictEqual(newKey, '#FF0000');
+    let result = css;
+    [...edits].reverse().forEach((e) => { result = result.slice(0, e.start) + e.text + result.slice(e.end); });
+    assert.ok(result.includes('--bs-primary: #ff0000;'));
+    assert.ok(result.includes('--bs-primary-rgb: 255, 0, 0;'));
+    assert.ok(result.includes('--bs-link: #FF0000;'));
+    assert.ok(result.includes('rgba(13, 110, 253, .25)'), 'other alpha group untouched');
+    const alpha = planReplacement(css, '#0D6EFD40', { r: 0, g: 0, b: 0 });
+    assert.strictEqual(alpha.newKey, '#00000040');
+    assert.strictEqual(alpha.edits[0].text, 'rgba(0, 0, 0, 0.25)');
+  });
+
+  it('keeps the original notation across a session via templates', () => {
+    const text = 'a: #0d6efd; b: #0D6EFD;';
+    const first = planReplacement(text, '#0D6EFD', { r: 17, g: 17, b: 17 });
+    let current = text;
+    [...first.edits].reverse().forEach((e) => { current = current.slice(0, e.start) + e.text + current.slice(e.end); });
+    assert.strictEqual(current, 'a: #111111; b: #111111;');
+    const second = planReplacement(current, first.newKey, { r: 255, g: 0, b: 170 }, first.originals);
+    assert.deepStrictEqual(second.edits.map((e) => e.text), ['#ff00aa', '#FF00AA']);
   });
 });

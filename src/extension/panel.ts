@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { HostMessage, WebviewMessage } from '../core/messages';
 import { EXPORT_FORMATS, ExportFormat, exportPalette, parsePaletteFile, slugify } from '../core/palette';
+import { DocumentColorSync } from './documentColors';
 import { PaletteStore } from './store';
 
 /**
@@ -11,6 +12,7 @@ export class PalettePanel {
   private static current: PalettePanel | undefined;
 
   private readonly disposables: vscode.Disposable[] = [];
+  private readonly documentColors: DocumentColorSync;
 
   static show(context: vscode.ExtensionContext, store: PaletteStore, editors: EditorTracker): PalettePanel {
     if (PalettePanel.current) {
@@ -37,6 +39,8 @@ export class PalettePanel {
     private readonly store: PaletteStore,
     private readonly editors: EditorTracker
   ) {
+    this.documentColors = new DocumentColorSync(editors, (message) => this.post(message));
+    this.disposables.push(this.documentColors);
     panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'icon.svg');
     panel.webview.html = this.renderHtml();
     panel.onDidDispose(() => this.dispose(), null, this.disposables);
@@ -63,6 +67,19 @@ export class PalettePanel {
             palettes: this.store.palettes,
             settings: { defaultExportFormat: this.config.get<ExportFormat>('defaultExportFormat', 'css') }
           });
+          this.documentColors.scan();
+          break;
+        case 'document:refresh':
+          this.documentColors.scan();
+          break;
+        case 'document:replace':
+          this.documentColors.replace(msg.uri, msg.session, msg.key, msg.hex);
+          break;
+        case 'document:reveal':
+          await this.documentColors.reveal(msg.uri, msg.line);
+          break;
+        case 'document:setAutoSave':
+          await this.documentColors.setAutoSave(msg.enabled);
           break;
         case 'copy':
           await vscode.env.clipboard.writeText(msg.text);
@@ -267,19 +284,37 @@ export class PalettePanel {
 
 /** Remembers the last focused text editor, since the webview takes focus. */
 export class EditorTracker implements vscode.Disposable {
-  private editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+  private editor: vscode.TextEditor | undefined = EditorTracker.isTextFile(vscode.window.activeTextEditor)
+    ? vscode.window.activeTextEditor
+    : undefined;
+
   private readonly subscription = vscode.window.onDidChangeActiveTextEditor((e) => {
-    if (e) {
+    if (EditorTracker.isTextFile(e)) {
       this.editor = e;
     }
   });
 
+  /** Ignores output, debug console and other non-file editors. */
+  private static isTextFile(editor: vscode.TextEditor | undefined): editor is vscode.TextEditor {
+    return !!editor && ['file', 'untitled', 'vscode-remote', 'vscode-userdata'].includes(editor.document.uri.scheme);
+  }
+
   get lastEditor(): vscode.TextEditor | undefined {
-    const open = vscode.window.visibleTextEditors;
+    const open = vscode.window.visibleTextEditors.filter((e) => EditorTracker.isTextFile(e));
     if (this.editor && open.includes(this.editor)) {
       return this.editor;
     }
     return open[0];
+  }
+
+  /** Document of the last text editor, even if it is currently hidden behind the panel. */
+  get lastDocument(): vscode.TextDocument | undefined {
+    const visible = this.lastEditor?.document;
+    if (visible) {
+      return visible;
+    }
+    const doc = this.editor?.document;
+    return doc && !doc.isClosed ? doc : undefined;
   }
 
   dispose(): void {

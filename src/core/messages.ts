@@ -3,6 +3,7 @@
  */
 import { HarmonyMode } from './harmony.js';
 import { ExportFormat, Palette } from './palette.js';
+import { ColorGroup } from './scan.js';
 
 export interface Swatch {
   hex: string;
@@ -23,6 +24,16 @@ export interface Settings {
   defaultExportFormat: ExportFormat;
 }
 
+/** Colors found in the currently edited text document. */
+export interface DocumentColors {
+  uri: string;
+  fileName: string;
+  languageId: string;
+  groups: ColorGroup[];
+  tooLarge: boolean;
+  autoSave: boolean;
+}
+
 export type WebviewMessage =
   | { type: 'ready' }
   | { type: 'copy'; text: string; label?: string }
@@ -37,7 +48,11 @@ export type WebviewMessage =
   | { type: 'palette:delete'; id: string }
   | { type: 'palette:export'; palette: { name: string; colors: string[] }; format: ExportFormat }
   | { type: 'palette:saveImage'; name: string; dataUrl: string }
-  | { type: 'palette:import' };
+  | { type: 'palette:import' }
+  | { type: 'document:refresh' }
+  | { type: 'document:replace'; uri: string; session: number; key: string; hex: string }
+  | { type: 'document:reveal'; uri: string; line: number }
+  | { type: 'document:setAutoSave'; enabled: boolean };
 
 export type HostMessage =
   | { type: 'init'; working?: WorkingState; history: string[]; palettes: Palette[]; settings: Settings }
@@ -45,4 +60,5 @@ export type HostMessage =
   | { type: 'palettes'; palettes: Palette[] }
   | { type: 'paletteSaved'; palette: Palette }
   | { type: 'paletteImported'; palette: Palette }
-  | { type: 'paletteRenamed'; id: string; name: string };
+  | { type: 'paletteRenamed'; id: string; name: string }
+  | { type: 'document:colors'; document: DocumentColors | undefined };
