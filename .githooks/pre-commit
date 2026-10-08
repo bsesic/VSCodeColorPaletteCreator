@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run ESLint and the unit tests before every commit.
+set -e
+npm run --silent lint
+npm test --silent

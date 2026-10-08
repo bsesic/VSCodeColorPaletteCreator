@@ -1,0 +1,147 @@
+{
+  "name": "vscode-color-palette-creator",
+  "displayName": "VSCode Color Palette Creator",
+  "description": "Color picker, palette generator with color harmonies, image color extraction, gradients, contrast checker, color blindness simulator, inline color boxes and live editing of the colors in your code.",
+  "version": "1.0.0",
+  "publisher": "bsesic",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1F2A44",
+    "theme": "dark"
+  },
+  "homepage": "https://github.com/bsesic/VSCodeColorPaletteCreator#readme",
+  "bugs": {
+    "url": "https://github.com/bsesic/VSCodeColorPaletteCreator/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsesic/VSCodeColorPaletteCreator.git"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "color",
+    "palette",
+    "color picker",
+    "gradient",
+    "contrast",
+    "color blindness",
+    "css",
+    "bootstrap",
+    "tailwind",
+    "eyedropper"
+  ],
+  "main": "./out/extension/src/extension/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "colorPaletteCreator.open",
+        "title": "Open Color Palette Creator",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.insertPalette",
+        "title": "Insert Saved Palette...",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.clearHistory",
+        "title": "Clear Color History",
+        "category": "Color Palette"
+      }
+    ],
+    "configuration": {
+      "title": "Color Palette Creator",
+      "properties": {
+        "colorPaletteCreator.historySize": {
+          "type": "number",
+          "default": 60,
+          "minimum": 10,
+          "maximum": 500,
+          "description": "Maximum number of colors kept in the color history."
+        },
+        "colorPaletteCreator.defaultExportFormat": {
+          "type": "string",
+          "default": "css",
+          "enum": [
+            "css",
+            "scss",
+            "less",
+            "json",
+            "tailwind",
+            "js",
+            "ts",
+            "gpl",
+            "txt"
+          ],
+          "description": "Default format used when exporting or inserting a palette."
+        },
+        "colorPaletteCreator.showStatusBarItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a status bar button that opens the Color Palette Creator."
+        },
+        "colorPaletteCreator.inlineColors.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a color box with a color picker in front of color codes (HEX, RGB(A), HSL(A), HSV(A)) in the editor."
+        },
+        "colorPaletteCreator.inlineColors.excludedLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Language IDs in which no inline color boxes are shown."
+        },
+        "colorPaletteCreator.inlineColors.builtInLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "css",
+            "scss",
+            "less"
+          ],
+          "description": "Languages that already have a built-in color provider. Only colors it does not support (HSV, Bootstrap RGB triplets) are added there to avoid duplicate color boxes."
+        },
+        "colorPaletteCreator.documentColors.autoSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Save the document automatically after changing a color in the Document tab (useful with live reload servers)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"const fs=require('fs');fs.rmSync('out',{recursive:true,force:true});fs.rmSync('media/out',{recursive:true,force:true})\"",
+    "compile": "npm run clean && tsc -p tsconfig.json && tsc -p tsconfig.webview.json",
+    "watch": "tsc -p tsconfig.json -w",
+    "lint": "eslint src test --ext ts",
+    "test": "npm run compile && mocha",
+    "vscode:prepublish": "npm run compile",
+    "precommit": "npm run lint && npm test",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^16.18.0",
+    "@types/vscode": "~1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vscode/vsce": "~2.32.0",
+    "eslint": "^8.57.0",
+    "mocha": "^10.4.0",
+    "typescript": "~5.4.5"
+  }
+}
