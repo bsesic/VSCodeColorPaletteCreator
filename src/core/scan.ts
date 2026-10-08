@@ -249,6 +249,8 @@ export interface ColorGroup {
   names: string[];
   /** 0-based line numbers of the occurrences. */
   lines: number[];
+  /** Start and end offsets of the occurrences (same order as `lines`). */
+  ranges: Array<[number, number]>;
   formats: ScanFormat[];
 }
 
@@ -269,12 +271,13 @@ export function groupColors(text: string, found: FoundColor[]): ColorGroup[] {
     if (!group) {
       group = {
         key, hex: rgbToHex(f.color), alpha: Math.round(f.color.a * 1000) / 1000,
-        count: 0, names: [], lines: [], formats: [], first: f.start
+        count: 0, names: [], lines: [], ranges: [], formats: [], first: f.start
       };
       groups.set(key, group);
     }
     group.count++;
     group.lines.push(line);
+    group.ranges.push([f.start, f.end]);
     if (f.name && !group.names.includes(f.name)) {
       group.names.push(f.name);
     }

@@ -483,3 +483,7 @@ input[type="color"] { width: 34px; height: 26px; padding: 0; border: 1px solid v
 .link-btn { background: transparent; color: var(--vscode-textLink-foreground); padding: 0; border: none; }
 .link-btn:hover { background: transparent; text-decoration: underline; }
 .picker.compact .sv-area { height: 140px; }
+
+.doc-nav { display: flex; align-items: center; gap: 6px; }
+.doc-nav-label { font-variant-numeric: tabular-nums; }
+.link-btn.current { font-weight: 700; text-decoration: underline; }

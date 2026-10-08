@@ -22,6 +22,8 @@ export function createDocumentView(): View {
   let sessionKey = '';
   let sessionAlpha = 1;
   let filter = '';
+  /** Index of the occurrence shown in the editor for the selected color. */
+  let occurrence = 0;
   /** Time of the last edit sent; document updates shortly after it must not move the picker. */
   let lastSent = 0;
 
@@ -66,14 +68,30 @@ export function createDocumentView(): View {
   const search = h('input', { type: 'text', placeholder: 'Filter by color or variable…', class: 'grow', 'aria-label': 'Filter colors' });
   search.addEventListener('input', () => { filter = search.value.trim().toLowerCase(); renderGrid(); });
 
+  const reveal = (group: ColorGroup, index: number): void => {
+    if (!doc || group.ranges.length === 0) {
+      return;
+    }
+    occurrence = ((index % group.ranges.length) + group.ranges.length) % group.ranges.length;
+    post({ type: 'document:reveal', uri: doc.uri, range: group.ranges[occurrence], highlight: group.ranges });
+    renderDetail();
+  };
+
+  /** Selects a color; clicking the selected color again jumps to its next occurrence. */
   const select = (group: ColorGroup): void => {
+    if (group.key === selectedKey) {
+      reveal(group, occurrence + 1);
+      return;
+    }
     flush();
     session++;
     sessionKey = group.key;
     sessionAlpha = group.alpha;
     selectedKey = group.key;
+    occurrence = 0;
     picker.setColor(group.hex);
     render();
+    reveal(group, 0);
   };
 
   function groupLabel(group: ColorGroup): string {
@@ -122,13 +140,18 @@ export function createDocumentView(): View {
     }
     detailTitle.textContent = `${groupLabel(group)} · ${group.count} occurrence(s)`;
     clear(detailMeta);
+    occurrence = Math.min(occurrence, group.count - 1);
+    detailMeta.appendChild(h('div', { class: 'doc-nav' },
+      iconButton(ICONS.chevronLeft, 'Previous occurrence', () => reveal(group, occurrence - 1)),
+      h('span', { class: 'doc-nav-label' }, `${occurrence + 1} / ${group.count} · Line ${group.lines[occurrence] + 1}`),
+      iconButton(ICONS.chevronRight, 'Next occurrence (or click the swatch again)', () => reveal(group, occurrence + 1))));
     if (group.names.length) {
       detailMeta.appendChild(h('div', { class: 'doc-names' }, ...group.names.map((n) => h('code', {}, n))));
     }
     const lines = h('div', { class: 'doc-lines' });
-    const uri = doc.uri;
-    [...new Set(group.lines)].slice(0, 40).forEach((line) => lines.appendChild(h('button', {
-      type: 'button', class: 'link-btn', title: 'Go to line', onclick: () => post({ type: 'document:reveal', uri, line })
+    group.lines.slice(0, 40).forEach((line, i) => lines.appendChild(h('button', {
+      type: 'button', class: `link-btn${i === occurrence ? ' current' : ''}`, title: 'Go to this occurrence',
+      onclick: () => reveal(group, i)
     }, `Line ${line + 1}`)));
     if (group.lines.length > 40) {
       lines.appendChild(h('span', { class: 'hint' }, `+${group.lines.length - 40} more`));
@@ -154,7 +177,7 @@ export function createDocumentView(): View {
     info.textContent = doc.tooLarge
       ? 'This file is too large to be scanned.'
       : `${doc.groups.length} colors · ${doc.groups.reduce((n, g) => n + g.count, 0)} occurrences · ${doc.languageId}. `
-        + 'Select a color to change all its occurrences in the file. Each change can be undone in the editor (Ctrl+Z).';
+        + 'Click a color to jump to it in the editor (click again for the next occurrence) and to change all its occurrences. Each change can be undone in the editor (Ctrl+Z).';
     renderGrid();
     renderDetail();
   }

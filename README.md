@@ -23,7 +23,8 @@ Pick, extract and generate color palettes inside Visual Studio Code and use them
   JSON, Tailwind config, JS/TS, GIMP palette or plain text; save as PNG image; import palette files; insert
   palettes into the active editor.
 - **Document colors**: the *Document* tab shows the colors of the open file as swatches, grouped by value with
-  variable names (e.g. `--bs-primary`), occurrence count and line links. Changing a swatch rewrites all its
+  variable names (e.g. `--bs-primary`), occurrence count and line links. Clicking a swatch jumps to the color in
+  the editor; clicking it again moves to the next occurrence and wraps around to the first one after the last. Changing a swatch rewrites all its
   occurrences in the file at once (HEX, functions and Bootstrap `-rgb` triplets keep their notation). Enable
   *Auto-save* to see the result immediately with live reload servers.
 - **Inline color boxes**: a small color box with VS Code's color picker in front of HEX, RGB(A), HSL(A) and

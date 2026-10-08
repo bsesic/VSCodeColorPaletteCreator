@@ -39,7 +39,7 @@ export class PalettePanel {
     private readonly store: PaletteStore,
     private readonly editors: EditorTracker
   ) {
-    this.documentColors = new DocumentColorSync(editors, (message) => this.post(message));
+    this.documentColors = new DocumentColorSync(editors, (message) => this.post(message), () => panel.viewColumn);
     this.disposables.push(this.documentColors);
     panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'icon.svg');
     panel.webview.html = this.renderHtml();
@@ -76,7 +76,7 @@ export class PalettePanel {
           this.documentColors.replace(msg.uri, msg.session, msg.key, msg.hex);
           break;
         case 'document:reveal':
-          await this.documentColors.reveal(msg.uri, msg.line);
+          await this.documentColors.reveal(msg.uri, msg.range, msg.highlight);
           break;
         case 'document:setAutoSave':
           await this.documentColors.setAutoSave(msg.enabled);
