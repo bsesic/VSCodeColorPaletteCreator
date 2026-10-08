@@ -4,6 +4,7 @@
 
 - Inline color boxes with color picker for HEX, RGB(A), HSL(A), HSV(A) and Bootstrap RGB triplets in all languages.
 - Document tab: edit the colors of the open file live, with optional auto-save.
+- Document tab: clicking a swatch jumps to its occurrences in the editor (cycling, wraps around).
 
 ## 0.1.0
 

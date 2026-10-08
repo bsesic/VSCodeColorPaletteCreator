@@ -18,8 +18,21 @@ export class DocumentColorSync implements vscode.Disposable {
   /** Current color key and original notations of each edit session (keys change with every edit). */
   private readonly sessions = new Map<number, { key: string; templates: string[] }>();
   private busy = false;
+  private flashTimer: ReturnType<typeof setTimeout> | undefined;
+  private readonly highlight = vscode.window.createTextEditorDecorationType({
+    backgroundColor: new vscode.ThemeColor('editor.findMatchHighlightBackground'),
+    border: '1px solid',
+    borderColor: new vscode.ThemeColor('editor.findMatchBorder'),
+    overviewRulerColor: new vscode.ThemeColor('editorOverviewRuler.findMatchForeground'),
+    overviewRulerLane: vscode.OverviewRulerLane.Center
+  });
 
-  constructor(private readonly editors: EditorTracker, private readonly post: (message: HostMessage) => void) {
+  constructor(
+    private readonly editors: EditorTracker,
+    private readonly post: (message: HostMessage) => void,
+    private readonly panelColumn: () => vscode.ViewColumn | undefined
+  ) {
+    this.disposables.push(this.highlight);
     this.disposables.push(
       vscode.window.onDidChangeActiveTextEditor(() => this.scheduleScan(50)),
       vscode.workspace.onDidChangeTextDocument((e) => {
@@ -108,14 +121,28 @@ export class DocumentColorSync implements vscode.Disposable {
     }
   }
 
-  async reveal(uri: string, line: number): Promise<void> {
+  /**
+   * Selects the color code at `range` in the editor and briefly highlights
+   * all `highlight` ranges. The webview keeps the focus; if the document is
+   * hidden behind the panel, it is opened in another editor group.
+   */
+  async reveal(uri: string, range: [number, number], highlight: Array<[number, number]>): Promise<void> {
     const doc = vscode.workspace.textDocuments.find((d) => d.uri.toString() === uri)
       ?? await vscode.workspace.openTextDocument(vscode.Uri.parse(uri));
-    const column = this.editors.lastEditor?.document === doc ? this.editors.lastEditor.viewColumn : undefined;
-    const editor = await vscode.window.showTextDocument(doc, { viewColumn: column ?? vscode.ViewColumn.One, preserveFocus: false });
-    const lineText = doc.lineAt(Math.min(line, doc.lineCount - 1));
-    editor.selection = new vscode.Selection(lineText.range.start, lineText.range.end);
-    editor.revealRange(lineText.range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+    const visible = vscode.window.visibleTextEditors.find((e) => e.document === doc);
+    let column = visible?.viewColumn;
+    if (!column) {
+      column = this.panelColumn() === vscode.ViewColumn.One ? vscode.ViewColumn.Two : vscode.ViewColumn.One;
+    }
+    const editor = await vscode.window.showTextDocument(doc, { viewColumn: column, preserveFocus: true, preview: false });
+    const toRange = ([start, end]: [number, number]): vscode.Range =>
+      new vscode.Range(doc.positionAt(start), doc.positionAt(end));
+    const target = toRange(range);
+    editor.selection = new vscode.Selection(target.start, target.end);
+    editor.revealRange(target, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+    editor.setDecorations(this.highlight, highlight.map(toRange));
+    clearTimeout(this.flashTimer);
+    this.flashTimer = setTimeout(() => editor.setDecorations(this.highlight, []), 1500);
   }
 
   async setAutoSave(enabled: boolean): Promise<void> {
@@ -127,6 +154,7 @@ export class DocumentColorSync implements vscode.Disposable {
   dispose(): void {
     clearTimeout(this.scanTimer);
     clearTimeout(this.saveTimer);
+    clearTimeout(this.flashTimer);
     this.disposables.forEach((d) => d.dispose());
   }
 }

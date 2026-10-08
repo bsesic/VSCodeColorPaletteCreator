@@ -51,7 +51,7 @@ export type WebviewMessage =
   | { type: 'palette:import' }
   | { type: 'document:refresh' }
   | { type: 'document:replace'; uri: string; session: number; key: string; hex: string }
-  | { type: 'document:reveal'; uri: string; line: number }
+  | { type: 'document:reveal'; uri: string; range: [number, number]; highlight: Array<[number, number]> }
   | { type: 'document:setAutoSave'; enabled: boolean };
 
 export type HostMessage =

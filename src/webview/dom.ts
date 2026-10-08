@@ -91,5 +91,7 @@ export const ICONS = {
   download: svg('<path fill="currentColor" d="M7 1h2v7l2.5-2.5L13 7l-5 5-5-5 1.5-1.5L7 8V1zM2 13h12v2H2z"/>'),
   image: svg('<path fill="currentColor" d="M1 2h14v12H1V2zm2 2v7l3-3 2 2 3-4 2 3V4H3zm2.5 1a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>'),
   insert: svg('<path fill="currentColor" d="M5 4 1 8l4 4 1.4-1.4L3.8 8l2.6-2.6zm6 0-1.4 1.4L12.2 8l-2.6 2.6L11 12l4-4z"/>'),
+  chevronLeft: svg('<path fill="currentColor" d="M10.6 2 12 3.4 7.4 8l4.6 4.6-1.4 1.4-6-6z"/>'),
+  chevronRight: svg('<path fill="currentColor" d="M5.4 2 4 3.4 8.6 8 4 12.6 5.4 14l6-6z"/>'),
   save: svg('<path fill="currentColor" d="M2 1h10l3 3v11H1V1h1zm2 1v4h7V2H4zm4 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>')
 };
