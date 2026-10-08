@@ -190,7 +190,8 @@ export function formatLike(original: Pick<FoundColor, 'text' | 'format'>, color:
       if ((digits === 3 || digits === 4) && short) {
         hex = (hex.match(/../g) ?? []).map((p) => p[0]).join('');
       }
-      const lower = /[a-f]/.test(text) && !/[A-F]/.test(text);
+      // Lowercase unless the original uses uppercase letters.
+      const lower = !/[A-F]/.test(text);
       return `#${lower ? hex.toLowerCase() : hex.toUpperCase()}`;
     }
     default: {
@@ -229,10 +230,89 @@ export function formatLike(original: Pick<FoundColor, 'text' | 'format'>, color:
 export function presentations(original: Pick<FoundColor, 'text' | 'format'>, color: RGBA): string[] {
   const options = [
     formatLike(original, color),
-    formatLike({ format: 'hex', text: original.format === 'hex' ? original.text : '#000000' }, color),
+    formatLike({ format: 'hex', text: original.format === 'hex' ? original.text : '#FFFFFF' }, color),
     formatLike({ format: 'rgb', text: 'rgb(0, 0, 0)' }, color),
     formatLike({ format: 'hsl', text: 'hsl(0, 0%, 0%)' }, color),
     formatLike({ format: 'hsv', text: 'hsv(0, 0%, 0%)' }, color)
   ];
   return [...new Set(options)];
+}
+
+/** All occurrences of one color value in a document. */
+export interface ColorGroup {
+  key: string;
+  /** "#RRGGBB" without alpha. */
+  hex: string;
+  alpha: number;
+  count: number;
+  /** Variable/property names the color is assigned to (unique, in order of appearance). */
+  names: string[];
+  /** 0-based line numbers of the occurrences. */
+  lines: number[];
+  formats: ScanFormat[];
+}
+
+/** Groups found colors by value, most used first. */
+export function groupColors(text: string, found: FoundColor[]): ColorGroup[] {
+  const groups = new Map<string, ColorGroup & { first: number }>();
+  let line = 0;
+  let offset = 0;
+  for (const f of found) {
+    // Found colors are sorted, so line numbers can be counted incrementally.
+    for (; offset < f.start; offset++) {
+      if (text.charCodeAt(offset) === 10) {
+        line++;
+      }
+    }
+    const key = colorKey(f.color);
+    let group = groups.get(key);
+    if (!group) {
+      group = {
+        key, hex: rgbToHex(f.color), alpha: Math.round(f.color.a * 1000) / 1000,
+        count: 0, names: [], lines: [], formats: [], first: f.start
+      };
+      groups.set(key, group);
+    }
+    group.count++;
+    group.lines.push(line);
+    if (f.name && !group.names.includes(f.name)) {
+      group.names.push(f.name);
+    }
+    if (!group.formats.includes(f.format)) {
+      group.formats.push(f.format);
+    }
+  }
+  return [...groups.values()]
+    .sort((a, b) => b.count - a.count || a.first - b.first)
+    .map(({ first: _first, ...group }) => group);
+}
+
+export interface TextReplacement {
+  start: number;
+  end: number;
+  text: string;
+}
+
+/**
+ * Plans the text edits that change every occurrence of the color `key` to
+ * `newColor` (keeping each occurrence's notation and alpha). `templates`
+ * are the original texts of the occurrences from the first edit of a
+ * session, so the notation (e.g. letter case) survives intermediate colors.
+ */
+export function planReplacement(
+  text: string, key: string, newColor: RGB, templates?: string[]
+): { edits: TextReplacement[]; newKey: string; originals: string[] } {
+  const edits: TextReplacement[] = [];
+  const matches = findColors(text).filter((f) => colorKey(f.color) === key);
+  const useTemplates = templates && templates.length === matches.length;
+  let newKey = key;
+  matches.forEach((f, i) => {
+    const color = { ...newColor, a: f.color.a };
+    newKey = colorKey(color);
+    const replacement = formatLike({ format: f.format, text: useTemplates ? templates[i] : f.text }, color);
+    if (replacement !== f.text) {
+      edits.push({ start: f.start, end: f.end, text: replacement });
+    }
+  });
+  return { edits, newKey, originals: useTemplates ? templates : matches.map((f) => f.text) };
 }

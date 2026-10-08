@@ -450,3 +450,36 @@ input[type="color"] { width: 34px; height: 26px; padding: 0; border: 1px solid v
 .library-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .tag { margin-left: 8px; font-size: 0.75em; font-weight: 500; padding: 1px 6px; border-radius: 8px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); }
 .icon-btn.danger:hover { color: var(--vscode-errorForeground, #f14c4c); }
+
+/* ---------- Document colors ---------- */
+.document-view { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); gap: var(--gap); align-items: start; }
+@media (max-width: 760px) { .document-view { grid-template-columns: 1fr; } }
+.doc-detail { position: sticky; top: 8px; }
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.doc-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--checker);
+  color: var(--vscode-foreground);
+  text-align: left;
+}
+.doc-tile:hover { background: var(--checker); border-color: var(--accent); }
+.doc-tile.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+.doc-tile-color { height: 56px; display: flex; justify-content: flex-end; align-items: flex-start; padding: 4px 6px; }
+.doc-count { font-size: 0.8em; font-weight: 600; }
+.doc-tile-text { display: flex; flex-direction: column; padding: 4px 6px; background: var(--card); min-height: 38px; }
+.doc-tile-text strong { font-family: var(--vscode-editor-font-family); font-size: 0.9em; }
+.doc-tile-text small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-meta { display: grid; gap: 8px; margin-bottom: 10px; }
+.doc-names { display: flex; flex-wrap: wrap; gap: 4px; }
+.doc-names code { font-size: 0.85em; padding: 1px 5px; border-radius: 3px; background: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.15)); }
+.doc-lines { display: flex; flex-wrap: wrap; gap: 2px 8px; max-height: 84px; overflow-y: auto; }
+.link-btn { background: transparent; color: var(--vscode-textLink-foreground); padding: 0; border: none; }
+.link-btn:hover { background: transparent; text-decoration: underline; }
+.picker.compact .sv-area { height: 140px; }

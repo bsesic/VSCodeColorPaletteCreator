@@ -100,6 +100,11 @@
             "less"
           ],
           "description": "Languages that already have a built-in color provider. Only colors it does not support (HSV, Bootstrap RGB triplets) are added there to avoid duplicate color boxes."
+        },
+        "colorPaletteCreator.documentColors.autoSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Save the document automatically after changing a color in the Document tab (useful with live reload servers)."
         }
       }
     }

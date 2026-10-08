@@ -10,6 +10,7 @@ import { store } from './store.js';
 import { createEditorView } from './views/editor.js';
 import { createHistoryView } from './views/history.js';
 import { createContrastView } from './views/contrast.js';
+import { createDocumentView } from './views/document.js';
 import { createGradientView } from './views/gradient.js';
 import { createImageView } from './views/image.js';
 import { createLibraryView, saveImage } from './views/library.js';
@@ -19,7 +20,7 @@ import { View } from './views/view.js';
 import { toast } from './toast.js';
 
 const views: View[] = [
-  createEditorView(), createImageView(), createGradientView(), createContrastView(), createVisionView(), createLibraryView(),
+  createEditorView(), createDocumentView(), createImageView(), createGradientView(), createContrastView(), createVisionView(), createLibraryView(),
   createHistoryView()
 ];
 
