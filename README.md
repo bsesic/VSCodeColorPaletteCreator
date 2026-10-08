@@ -30,6 +30,7 @@
   language, not just CSS.
 - ♿ **Accessible by design:** WCAG contrast ratings and a color blindness simulator help you build palettes
   everybody can see.
+- 🌍 **Speaks your language:** available in 14 languages, following the display language of VS Code.
 - 📦 **Ready for your stack:** export to CSS, SCSS, LESS, JSON, Tailwind, JS/TS, GIMP palettes, plain text or PNG.
 
 ## 🚀 Quick start
@@ -127,6 +128,15 @@ Every color you copy, pick or edit is remembered. Re-apply it to a swatch, copy 
 colors into a palette.
 
 ![Color history](images/screenshots/history.png)
+
+## 🌍 Languages
+
+Color Palette Creator follows the display language of VS Code (**Configure Display Language**) and is available in:
+
+English · Deutsch · Français · Español · Italiano · Português (Brasil) · 日本語 · 한국어 · 简体中文 · 繁體中文 ·
+Русский · Polski · Čeština · Türkçe
+
+Found a translation that could be better? Improvements are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## ⌨️ Commands and shortcuts
 
