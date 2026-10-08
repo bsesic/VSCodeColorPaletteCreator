@@ -1,5 +1,17 @@
 #!/bin/sh
 # Run ESLint and the unit tests before every commit.
 set -e
+
+# The tooling requires the Node.js version from .nvmrc; switch to it via nvm when available.
+NVM_SH="${NVM_DIR:-$HOME/.nvm}/nvm.sh"
+if [ -f .nvmrc ] && [ -s "$NVM_SH" ]; then
+  # shellcheck disable=SC1090
+  . "$NVM_SH"
+  nvm use --silent >/dev/null || {
+    echo "pre-commit: Node.js $(cat .nvmrc) is not installed. Run 'nvm install' first." >&2
+    exit 1
+  }
+fi
+
 npm run --silent lint
 npm test --silent

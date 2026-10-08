@@ -64,6 +64,7 @@ Other commands:
 ## Development
 
 ```bash
+nvm use          # Node.js 22 from .nvmrc
 npm install
 npm run compile   # build extension host and webview
 npm run lint      # ESLint
@@ -74,7 +75,8 @@ Press `F5` in VS Code to start an Extension Development Host.
 
 ### Packaging and publishing
 
-`vsce` requires Node.js 18 or newer.
+The tooling (mocha, `vsce`) requires Node.js 22 (see `.nvmrc`). With nvm, run `nvm use` in the project folder;
+the pre-commit hook switches to this version automatically.
 
 ```bash
 npm run package                 # creates vscode-color-palette-creator-<version>.vsix
