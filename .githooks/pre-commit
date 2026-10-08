@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run linters (ESLint + flake8) and unit tests before every commit.
+set -e
+npm run --silent lint
+npm test --silent
