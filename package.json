@@ -1,10 +1,19 @@
 {
   "name": "vscode-color-palette-creator",
   "displayName": "VSCode Color Palette Creator",
-  "description": "Pick, extract and generate color palettes and use them directly in your code.",
-  "version": "0.1.0",
+  "description": "Color picker, palette generator with color harmonies, image color extraction, gradients, contrast checker, color blindness simulator, inline color boxes and live editing of the colors in your code.",
+  "version": "1.0.0",
   "publisher": "bsesic",
   "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1F2A44",
+    "theme": "dark"
+  },
+  "homepage": "https://github.com/bsesic/VSCodeColorPaletteCreator#readme",
+  "bugs": {
+    "url": "https://github.com/bsesic/VSCodeColorPaletteCreator/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/bsesic/VSCodeColorPaletteCreator.git"
@@ -21,7 +30,12 @@
     "palette",
     "color picker",
     "gradient",
-    "contrast"
+    "contrast",
+    "color blindness",
+    "css",
+    "bootstrap",
+    "tailwind",
+    "eyedropper"
   ],
   "main": "./out/extension/src/extension/extension.js",
   "activationEvents": [
@@ -116,14 +130,16 @@
     "lint": "eslint src test --ext ts",
     "test": "npm run compile && mocha",
     "vscode:prepublish": "npm run compile",
-    "precommit": "npm run lint && npm test"
+    "precommit": "npm run lint && npm test",
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
     "@types/node": "^16.18.0",
-    "@types/vscode": "^1.80.0",
+    "@types/vscode": "~1.80.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "@vscode/vsce": "~2.32.0",
     "eslint": "^8.57.0",
     "mocha": "^10.4.0",
     "typescript": "~5.4.5"

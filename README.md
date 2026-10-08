@@ -72,6 +72,16 @@ npm test          # unit tests (mocha)
 
 Press `F5` in VS Code to start an Extension Development Host.
 
+### Packaging and publishing
+
+`vsce` requires Node.js 18 or newer.
+
+```bash
+npm run package                 # creates vscode-color-palette-creator-<version>.vsix
+npx vsce login bsesic           # once, with an Azure DevOps personal access token
+npx vsce publish                # publish to the Visual Studio Marketplace
+```
+
 The git pre-commit hook in `.githooks/` runs the linters and the tests. Enable it once with
 `git config core.hooksPath .githooks`.
 

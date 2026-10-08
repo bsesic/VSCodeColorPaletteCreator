@@ -1,9 +1,13 @@
 .vscode/**
 .githooks/**
+.github/**
 src/**
 test/**
 out/extension/test/**
+images/*.svg
 **/*.map
+**/*.ts
 tsconfig*.json
 .eslintrc.json
 .mocharc.json
+.gitignore
