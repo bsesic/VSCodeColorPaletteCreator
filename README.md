@@ -69,6 +69,8 @@ such as `--bs-primary` and the number of occurrences.
 - Optional **auto-save** so live reload servers show the result immediately
 - Use the document colors as a palette with one click
 
+![Live editing of the colors of a Bootstrap stylesheet in the Document tab](images/screenshots/document-colors.png)
+
 ### 🖌️ Inline color pickers
 
 A small color box with VS Code's color picker appears in front of color codes in every language:
