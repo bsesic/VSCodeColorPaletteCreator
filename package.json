@@ -23,7 +23,7 @@
     "gradient",
     "contrast"
   ],
-  "main": "./out/extension/extension.js",
+  "main": "./out/extension/src/extension/extension.js",
   "activationEvents": [],
   "contributes": {
     "commands": [

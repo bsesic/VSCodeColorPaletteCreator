@@ -44,4 +44,5 @@ export type HostMessage =
   | { type: 'history'; history: string[] }
   | { type: 'palettes'; palettes: Palette[] }
   | { type: 'paletteSaved'; palette: Palette }
-  | { type: 'paletteImported'; palette: Palette };
+  | { type: 'paletteImported'; palette: Palette }
+  | { type: 'paletteRenamed'; id: string; name: string };

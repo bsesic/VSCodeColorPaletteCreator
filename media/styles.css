@@ -439,3 +439,14 @@ input[type="color"] { width: 34px; height: 26px; padding: 0; border: 1px solid v
 .vision-images figure { margin: 0; }
 .vision-canvas { width: 100%; height: auto; border-radius: var(--radius); display: block; }
 .vision-images figcaption { color: var(--muted); font-size: 0.9em; margin-top: 4px; }
+
+/* ---------- Library ---------- */
+.library-list { display: grid; gap: 10px; }
+.library-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; }
+.library-card.current { border-color: var(--accent); }
+.library-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.library-strip { cursor: pointer; margin-bottom: 8px; }
+.library-strip .result-swatch { display: flex; align-items: center; justify-content: center; height: 44px; }
+.library-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tag { margin-left: 8px; font-size: 0.75em; font-weight: 500; padding: 1px 6px; border-radius: 8px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); }
+.icon-btn.danger:hover { color: var(--vscode-errorForeground, #f14c4c); }
