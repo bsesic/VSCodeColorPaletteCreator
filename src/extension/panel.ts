@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { HostMessage, WebviewMessage } from '../core/messages';
-import { EXPORT_FORMATS, ExportFormat, exportPalette, parsePaletteFile, slugify } from '../core/palette';
+import { ExportFormat, slugify } from '../core/palette';
+import { defaultUri, exportPaletteToFile, importPaletteFromFile } from './fileIO';
 import { DocumentColorSync } from './documentColors';
 import { PaletteStore } from './store';
 
@@ -13,6 +14,9 @@ export class PalettePanel {
 
   private readonly disposables: vscode.Disposable[] = [];
   private readonly documentColors: DocumentColorSync;
+  private ready = false;
+  private pendingTab: string | undefined;
+  private pendingMessages: HostMessage[] = [];
 
   static show(context: vscode.ExtensionContext, store: PaletteStore, editors: EditorTracker): PalettePanel {
     if (PalettePanel.current) {
@@ -41,11 +45,40 @@ export class PalettePanel {
   ) {
     this.documentColors = new DocumentColorSync(editors, (message) => this.post(message), () => panel.viewColumn);
     this.disposables.push(this.documentColors);
-    panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'icon.svg');
+    panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'images', 'icon.png');
     panel.webview.html = this.renderHtml();
     panel.onDidDispose(() => this.dispose(), null, this.disposables);
     panel.webview.onDidReceiveMessage((msg: WebviewMessage) => this.handle(msg), null, this.disposables);
     store.onDidChange(() => this.post({ type: 'palettes', palettes: store.palettes }), null, this.disposables);
+  }
+
+  /** Shows a tab of the webview (queued until the webview has loaded). */
+  showTab(tab: string): void {
+    if (this.ready) {
+      this.post({ type: 'showTab', tab });
+    } else {
+      this.pendingTab = tab;
+    }
+  }
+
+  /** Loads an image file into the Image tab. */
+  async loadImage(uri: vscode.Uri): Promise<void> {
+    const ext = (uri.path.split('.').pop() ?? 'png').toLowerCase();
+    const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+    const data = Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('base64');
+    const message: HostMessage = { type: 'loadImage', name: uri.path.split('/').pop() ?? 'image', dataUrl: `data:${mime};base64,${data}` };
+    if (this.ready) {
+      this.post(message);
+    } else {
+      this.pendingMessages.push(message);
+    }
+  }
+
+  private async importPalette(): Promise<void> {
+    const palette = await importPaletteFromFile(this.store);
+    if (palette) {
+      this.post({ type: 'paletteImported', palette });
+    }
   }
 
   post(message: HostMessage): void {
@@ -68,6 +101,13 @@ export class PalettePanel {
             settings: { defaultExportFormat: this.config.get<ExportFormat>('defaultExportFormat', 'css') }
           });
           this.documentColors.scan();
+          this.ready = true;
+          if (this.pendingTab) {
+            this.post({ type: 'showTab', tab: this.pendingTab });
+            this.pendingTab = undefined;
+          }
+          this.pendingMessages.forEach((m) => this.post(m));
+          this.pendingMessages = [];
           break;
         case 'document:refresh':
           this.documentColors.scan();
@@ -122,7 +162,7 @@ export class PalettePanel {
           await this.deletePalette(msg.id);
           break;
         case 'palette:export':
-          await this.exportPalette(msg.palette, msg.format);
+          await exportPaletteToFile(msg.palette, msg.format);
           break;
         case 'palette:saveImage':
           await this.saveImage(msg.name, msg.dataUrl);
@@ -176,28 +216,6 @@ export class PalettePanel {
     }
   }
 
-  private defaultUri(fileName: string): vscode.Uri | undefined {
-    const folder = vscode.workspace.workspaceFolders?.[0]?.uri;
-    return folder ? vscode.Uri.joinPath(folder, fileName) : undefined;
-  }
-
-  private async exportPalette(palette: { name: string; colors: string[] }, format: ExportFormat): Promise<void> {
-    const info = EXPORT_FORMATS.find((f) => f.id === format) ?? EXPORT_FORMATS[0];
-    const uri = await vscode.window.showSaveDialog({
-      title: `Export palette as ${info.label}`,
-      defaultUri: this.defaultUri(`${slugify(palette.name)}.${info.extension}`),
-      filters: { [info.label]: [info.extension] }
-    });
-    if (!uri) {
-      return;
-    }
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(exportPalette(palette, format), 'utf8'));
-    const open = await vscode.window.showInformationMessage(`Palette exported to ${uri.fsPath}`, 'Open');
-    if (open) {
-      await vscode.window.showTextDocument(uri);
-    }
-  }
-
   private async saveImage(name: string, dataUrl: string): Promise<void> {
     const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl);
     if (!match) {
@@ -205,33 +223,13 @@ export class PalettePanel {
     }
     const uri = await vscode.window.showSaveDialog({
       title: 'Save palette as image',
-      defaultUri: this.defaultUri(`${slugify(name)}.png`),
+      defaultUri: defaultUri(`${slugify(name)}.png`),
       filters: { 'PNG image': ['png'] }
     });
     if (uri) {
       await vscode.workspace.fs.writeFile(uri, Buffer.from(match[1], 'base64'));
       vscode.window.showInformationMessage(`Palette image saved to ${uri.fsPath}`);
     }
-  }
-
-  private async importPalette(): Promise<void> {
-    const [uri] = await vscode.window.showOpenDialog({
-      title: 'Import palette',
-      canSelectMany: false,
-      filters: { 'Palette files': ['json', 'css', 'scss', 'less', 'txt', 'gpl', 'js', 'ts'], 'All files': ['*'] }
-    }) ?? [];
-    if (!uri) {
-      return;
-    }
-    const text = Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8');
-    const fileName = uri.path.split('/').pop()?.replace(/\.[^.]+$/, '') ?? 'Imported palette';
-    const parsed = parsePaletteFile(text, fileName);
-    if (!parsed) {
-      vscode.window.showWarningMessage('No colors were found in the selected file.');
-      return;
-    }
-    const palette = await this.store.savePalette({ name: parsed.name, colors: parsed.colors.slice(0, 12) });
-    this.post({ type: 'paletteImported', palette });
   }
 
   /** Inserts text at the cursor(s) of the last active text editor. */

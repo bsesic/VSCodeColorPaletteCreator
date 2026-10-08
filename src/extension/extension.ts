@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { EXPORT_FORMATS, ExportFormat, exportPalette } from '../core/palette';
+import { EXPORT_FORMATS, ExportFormat, Palette, exportPalette } from '../core/palette';
+import { exportPaletteToFile, importPaletteFromFile } from './fileIO';
 import { registerInlineColors } from './colorProvider';
 import { EditorTracker, PalettePanel } from './panel';
 import { PaletteStore } from './store';
@@ -34,6 +35,30 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('colorPaletteCreator.open', () => {
       PalettePanel.show(context, store, editors);
     }),
+    ...Object.entries(TAB_COMMANDS).map(([command, tab]) => vscode.commands.registerCommand(command, async (uri?: vscode.Uri) => {
+      const panel = PalettePanel.show(context, store, editors);
+      panel.showTab(tab);
+      // Invoked from the explorer context menu of an image: load that image.
+      if (tab === 'image' && uri instanceof vscode.Uri) {
+        await panel.loadImage(uri);
+      }
+    })),
+    vscode.commands.registerCommand('colorPaletteCreator.exportPalette', async () => {
+      const palette = await pickPalette(store, 'Select a palette to export');
+      const format = palette && await pickFormat();
+      if (palette && format) {
+        await exportPaletteToFile(palette, format);
+      }
+    }),
+    vscode.commands.registerCommand('colorPaletteCreator.importPalette', async () => {
+      await importPaletteFromFile(store);
+    }),
+    vscode.commands.registerCommand('colorPaletteCreator.toggleInlineColors', async () => {
+      const config = vscode.workspace.getConfiguration('colorPaletteCreator.inlineColors');
+      const enabled = !config.get<boolean>('enabled', true);
+      await config.update('enabled', enabled, vscode.ConfigurationTarget.Global);
+      vscode.window.showInformationMessage(`Inline color boxes ${enabled ? 'enabled' : 'disabled'}.`);
+    }),
     vscode.commands.registerCommand('colorPaletteCreator.clearHistory', async () => {
       await store.clearHistory();
       vscode.window.showInformationMessage('Color history cleared.');
@@ -44,29 +69,47 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 }
 
-/** Lets the user pick a saved palette and an export format and inserts the code. */
-async function insertSavedPalette(store: PaletteStore, editors: EditorTracker): Promise<void> {
+/** Commands that open the panel on a specific tab. */
+const TAB_COMMANDS: Record<string, string> = {
+  'colorPaletteCreator.openDocumentColors': 'document',
+  'colorPaletteCreator.openImageExtraction': 'image',
+  'colorPaletteCreator.openGradientGenerator': 'gradient',
+  'colorPaletteCreator.openContrastChecker': 'contrast',
+  'colorPaletteCreator.openColorBlindnessSimulator': 'vision',
+  'colorPaletteCreator.openSavedPalettes': 'library',
+  'colorPaletteCreator.openHistory': 'history'
+};
+
+async function pickPalette(store: PaletteStore, placeHolder: string): Promise<Palette | undefined> {
   const palettes = store.palettes;
   if (palettes.length === 0) {
     vscode.window.showInformationMessage('There are no saved palettes yet. Open the Color Palette Creator to create one.');
-    return;
+    return undefined;
   }
-  const palette = await vscode.window.showQuickPick(
+  const picked = await vscode.window.showQuickPick(
     palettes.map((p) => ({ label: p.name, description: p.colors.join(' '), palette: p })),
-    { placeHolder: 'Select a palette to insert' }
+    { placeHolder }
   );
-  if (!palette) {
-    return;
-  }
+  return picked?.palette;
+}
+
+async function pickFormat(): Promise<ExportFormat | undefined> {
   const defaultFormat = vscode.workspace.getConfiguration('colorPaletteCreator').get<ExportFormat>('defaultExportFormat', 'css');
-  const format = await vscode.window.showQuickPick(
+  const picked = await vscode.window.showQuickPick(
     EXPORT_FORMATS.map((f) => ({ label: f.label, description: f.id === defaultFormat ? 'default' : '', id: f.id })),
     { placeHolder: 'Select the format' }
   );
-  if (!format) {
+  return picked?.id;
+}
+
+/** Lets the user pick a saved palette and an export format and inserts the code. */
+async function insertSavedPalette(store: PaletteStore, editors: EditorTracker): Promise<void> {
+  const palette = await pickPalette(store, 'Select a palette to insert');
+  const format = palette && await pickFormat();
+  if (!palette || !format) {
     return;
   }
-  const text = exportPalette(palette.palette, format.id);
+  const text = exportPalette(palette, format);
   const editor = editors.lastEditor;
   if (editor) {
     await editor.edit((edit) => editor.selections.forEach((s) => edit.replace(s, text)));

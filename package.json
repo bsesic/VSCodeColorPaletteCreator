@@ -1,7 +1,7 @@
 {
   "name": "vscode-color-palette-creator",
-  "displayName": "VSCode Color Palette Creator",
-  "description": "Color picker, palette generator with color harmonies, image color extraction, gradients, contrast checker, color blindness simulator, inline color boxes and live editing of the colors in your code.",
+  "displayName": "Color Palette Creator",
+  "description": "Color picker, palette generator with color harmonies, image color extraction, gradients, WCAG contrast checker, color blindness simulator, inline color pickers and live editing of the colors in your code.",
   "version": "1.0.0",
   "publisher": "bsesic",
   "license": "MIT",
@@ -14,6 +14,9 @@
   "bugs": {
     "url": "https://github.com/bsesic/VSCodeColorPaletteCreator/issues"
   },
+  "sponsor": {
+    "url": "https://www.buymeacoffee.com/bsesic"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/bsesic/VSCodeColorPaletteCreator.git"
@@ -22,20 +25,25 @@
     "vscode": "^1.80.0"
   },
   "categories": [
-    "Other",
-    "Visualization"
+    "Visualization",
+    "Other"
   ],
   "keywords": [
     "color",
-    "palette",
     "color picker",
+    "palette",
+    "color palette",
     "gradient",
     "contrast",
+    "wcag",
+    "accessibility",
     "color blindness",
+    "eyedropper",
     "css",
-    "bootstrap",
+    "scss",
     "tailwind",
-    "eyedropper"
+    "bootstrap",
+    "theme"
   ],
   "main": "./out/extension/src/extension/extension.js",
   "activationEvents": [
@@ -46,6 +54,44 @@
       {
         "command": "colorPaletteCreator.open",
         "title": "Open Color Palette Creator",
+        "category": "Color Palette",
+        "icon": "$(symbol-color)"
+      },
+      {
+        "command": "colorPaletteCreator.openDocumentColors",
+        "title": "Edit Colors of Current File",
+        "category": "Color Palette",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "colorPaletteCreator.openImageExtraction",
+        "title": "Extract Colors from Image",
+        "category": "Color Palette",
+        "icon": "$(file-media)"
+      },
+      {
+        "command": "colorPaletteCreator.openGradientGenerator",
+        "title": "Open Gradient Generator",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.openContrastChecker",
+        "title": "Open Contrast Checker",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.openColorBlindnessSimulator",
+        "title": "Open Color Blindness Simulator",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.openSavedPalettes",
+        "title": "Manage Saved Palettes",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.openHistory",
+        "title": "Show Color History",
         "category": "Color Palette"
       },
       {
@@ -54,11 +100,59 @@
         "category": "Color Palette"
       },
       {
+        "command": "colorPaletteCreator.exportPalette",
+        "title": "Export Saved Palette...",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.importPalette",
+        "title": "Import Palette from File...",
+        "category": "Color Palette"
+      },
+      {
+        "command": "colorPaletteCreator.toggleInlineColors",
+        "title": "Toggle Inline Color Boxes",
+        "category": "Color Palette"
+      },
+      {
         "command": "colorPaletteCreator.clearHistory",
         "title": "Clear Color History",
         "category": "Color Palette"
       }
     ],
+    "keybindings": [
+      {
+        "command": "colorPaletteCreator.open",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p"
+      },
+      {
+        "command": "colorPaletteCreator.openDocumentColors",
+        "key": "ctrl+alt+shift+p",
+        "mac": "cmd+alt+shift+p",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "colorPaletteCreator.openDocumentColors",
+          "group": "z_colorPalette@1"
+        },
+        {
+          "command": "colorPaletteCreator.insertPalette",
+          "group": "z_colorPalette@2",
+          "when": "editorTextFocus && !editorReadonly"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "colorPaletteCreator.openImageExtraction",
+          "group": "z_colorPalette",
+          "when": "resourceExtname =~ /\\.(png|jpe?g|gif|webp|bmp)$/i"
+        }
+      ]
+    },
     "configuration": {
       "title": "Color Palette Creator",
       "properties": {
@@ -131,9 +225,11 @@
     "test": "npm run compile && mocha",
     "vscode:prepublish": "npm run compile",
     "precommit": "npm run lint && npm test",
-    "package": "vsce package"
+    "package": "vsce package",
+    "icon": "node scripts/render-icon.mjs"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "~2.6.2",
     "@types/mocha": "^10.0.6",
     "@types/node": "^16.18.0",
     "@types/vscode": "~1.80.0",
