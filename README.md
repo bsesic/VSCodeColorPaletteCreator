@@ -22,6 +22,10 @@ Pick, extract and generate color palettes inside Visual Studio Code and use them
 - **Palette management**: save, rename, duplicate, edit, delete and search palettes; export as CSS, SCSS, LESS,
   JSON, Tailwind config, JS/TS, GIMP palette or plain text; save as PNG image; import palette files; insert
   palettes into the active editor.
+- **Inline color boxes**: a small color box with VS Code's color picker in front of HEX, RGB(A), HSL(A) and
+  HSV(A) codes in every language, plus Bootstrap style RGB triplets (`--bs-primary-rgb: 13, 110, 253`). Editing
+  keeps the original notation. In CSS, SCSS and LESS only the formats missing in VS Code's built-in picker are
+  added, so no duplicate boxes appear.
 - **History** of recently used colors, undo/redo and automatic persistence of the working palette.
 
 ## Usage
@@ -46,6 +50,9 @@ Other commands:
 | `colorPaletteCreator.historySize` | `60` | Number of colors kept in the history |
 | `colorPaletteCreator.defaultExportFormat` | `css` | Format used for inserting palettes |
 | `colorPaletteCreator.showStatusBarItem` | `true` | Show the status bar button |
+| `colorPaletteCreator.inlineColors.enabled` | `true` | Show inline color boxes in the editor |
+| `colorPaletteCreator.inlineColors.excludedLanguages` | `[]` | Languages without inline color boxes |
+| `colorPaletteCreator.inlineColors.builtInLanguages` | `["css", "scss", "less"]` | Languages with a built-in color provider (only missing formats are added) |
 
 ## Development
 
